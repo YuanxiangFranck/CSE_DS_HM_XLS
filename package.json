@@ -2,11 +2,11 @@
   "name": "cse_ds_hm_xls",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack -d -w --color  src/main.js dist/bundle.js",
-    "build": "webpack -p --color src/main.js dist/bundle.js"
+    "watch": "webpack -w",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
