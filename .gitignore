@@ -2,3 +2,4 @@ node_modules
 package-lock.json
 Modernize-1.0.0.zip
 Modernize-1.0.0/
+dist
