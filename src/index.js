@@ -1,4 +1,4 @@
 
-cauie,console.log("auieaui");
+console.log("auieaui");
 
 
