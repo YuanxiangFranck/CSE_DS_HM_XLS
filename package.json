@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack -w",
-    "build": "webpack"
+    "build": "webpack",
+    "server": "http-server"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   "homepage": "https://github.com/YuanxiangFranck/CSE_DS_HM_XLS#readme",
   "devDependencies": {
     "babel": "^6.23.0",
+    "http-server": "^14.1.1",
     "webpack": "^5.87.0",
     "webpack-cli": "^5.1.4"
   }
