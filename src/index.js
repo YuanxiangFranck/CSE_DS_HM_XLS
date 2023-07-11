@@ -157,7 +157,7 @@ class FrontPage
         let content = await manager.fetchSavedContent();
         console.log(content)
         let front = new FrontPage(manager, content);
-        if (true)
+        if (false)
         {
             front.rebuild({});
             front.info = {
