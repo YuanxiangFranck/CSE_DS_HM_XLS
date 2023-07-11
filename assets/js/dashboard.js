@@ -1,4 +1,4 @@
-/*$(function () {
+$(function () {
 
 
   // =====================================
@@ -208,4 +208,4 @@
     },
   };
   new ApexCharts(document.querySelector("#earning"), earning).render();
-})*/
+})
