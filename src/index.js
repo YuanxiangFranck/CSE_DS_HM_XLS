@@ -195,7 +195,7 @@ class FrontPage
         // console.log(this.expenses)
         Utils.setText("#info-spent", this._totalCost);
         Utils.setText("#info-sub", this._totalCost);
-        let val = (this._totalCost - this._totalSub) / this._nb_users;
+        let val = this._nb_users ? (this._totalCost - this._totalSub) / this._nb_users : 0;
         val = Math.round(val*100) / 100;
         Utils.setText("#info-avg", val);
 

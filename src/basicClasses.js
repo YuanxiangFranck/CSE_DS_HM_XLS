@@ -61,7 +61,7 @@ export class Expense
 
 export class EditableField
 {
-    constructor (htmlId, field_path, front, editable, type)
+    constructor (htmlId, field_path, front, editable, type, data)
     {
         this.htmlId = htmlId;
         this.path = field_path.split(".");
