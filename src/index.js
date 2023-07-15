@@ -17,51 +17,57 @@ class FrontPage
     constructor(clientServerManager, content)
     {
         this.manager = clientServerManager;
-        this.info = {};
-        this.users = [];
-        this.expenses = [];
-        this.groups = [];
-        this.rules = {};
+        // for import export
+        this._data = {
+            info : {},
+            users : {},
+            expenses : [],
+            groups : [],
+            rules : {},
+        };
         // Computed members
+        this._users = {};
         this._nb_users = 0;
         this._totalCost = 0;
         this._totalSub = 0;
-        this._users = []; // without super
         this._byPerson = {};
         this._byGroup = {};
 
         // Init
-        this.rebuild(content);
+        this._data = content;
+        this.rebuild();
+
+        // UI
         this.infoEditableFields = {};
     }
 
     recompute()
     {
-        this._users = [];
         this._nb_users = 0;
         this._byPerson = {};
         this._byGroup = {};
         this._totalCost = 0;
         this._totalSub = 0;
-        for (const user of this.users)
+        let nonSuperUsers = [];
+        for (const user of Object.values(this._users))
         {
             if (user.isSuperUser) continue;
-            this._byPerson[user.name] = 0;
-            this._users.push[user.name];
+            this._byPerson[user.id] = 0;
             this._nb_users++;
+            nonSuperUsers.push(user.id);
         }
         for (let exp of this.expenses)
         {
+            let fromUser = this.users[exp.from];
             // person
             if (this._byPerson[exp.from]) // not found means super user
             {
                 this._byPerson[exp.from] += this.expenses.cost;
             }
-            let users = exp.target || this._users;
-            let nb_users = users.length;
-            for (let user of users)
+            let targetUsersIds = exp.target || nonSuperUsers;
+            for (let userId of targetUsersIds)
             {
-                this._byPerson[user] -= exp.cost / nb_users;
+                this._byPerson[user.id] -= exp.cost / this._nb_users;
             }
             // group
             if (this._byGroup[exp.group] == null)
@@ -76,39 +82,39 @@ class FrontPage
     }
     pushData()
     {
-        this.recompute()
-        this.manager.saveContent({
-            info: this.info,
-            users : this.users.map((u)=>JSON.stringify(u)),
-            expenses : this.expenses.map(e=>JSON.stringify(e)),
-            rules : this.rules
-        });
+        this.recompute();
+        this.manager.saveContent(this._data);
     }
 
-    rebuild(content)
+    rebuild()
     {
         // clear data
-        this.info = content.info;
-        this.users = [];
-        for (let u of content?.users || [])
+        this._users = {};
+        this._nb_users = 0;
+        this._totalCost = 0;
+        this._totalSub = 0;
+        this._byPerson = {};
+        this._byGroup = {};
+        // users
+        for (let u of this._data?.users || [])
         {
             let user = new User(u);
-            if (user.name)
-                this.users.push(user);
+            if (user.id)
+                this.users[id] = user;
         }
-        if (this.users.length === 0)
+        if (Object.keys(this._users).length === 0)
         {
-            this.users.push(new User({ firstname: "Dassault", name: "Sport", company: CompanyEnum.DA, isSuperUser : true}));
+            this._users[0] = new User({ firstname: "Dassault", name: "Sport", company: CompanyEnum.DA, isSuperUser : true, id: 0});
         }
         this.expenses = [];
-        for (let e of content?.expenses || [])
+        for (let e of this._data?.expenses || [])
         {
             if (e)
                 this.expenses.push(new Expense(e));
         }
 
-        this.groups = content.groups || DEFAULT_GROUPS;
-        this.rules = content.rules || DEFAULT_RULES;
+        this._data.groups = this._data.groups || DEFAULT_GROUPS;
+        this._data.rules = this._data.rules || DEFAULT_RULES;
         this.recompute();
     }
 
@@ -155,16 +161,13 @@ class FrontPage
 
     buildInfo()
     {
-        let body = document.getElementById("main-summary");
-        let name = document.getElementById("info-title");
-        name.innerText = this.info.title;
         for (const [id, path, editable, type] of [
-            ["#info-title", "info.title", true, "text"],
-            ["#info-where", "info.destination", true, "text"],
-            ["#info-type", "info.type", true, "text"],
-            ["#info-start-date", "info.start", true, "date"],
-            ["#info-end-date", "info.end", true, "date"],
-            ["#info-resp", "info.responsible", true, "text"],
+            ["#info-title", "_data.info.title", true, "text"],
+            ["#info-where", "_data.info.destination", true, "text"],
+            ["#info-type", "_data.info.type", true, "text"],
+            ["#info-start-date", "_data.info.start", true, "date"],
+            ["#info-end-date", "_data.info.end", true, "date"],
+            ["#info-resp", "_data.info.responsible", true, "text"],
             ["#info-nb-users", "_nb_users", false, "text"]
         ])
         {
@@ -207,21 +210,40 @@ class FrontPage
 
     buildUsers()
     {
-        let idx = 1;
         let tbody = document.querySelector("#users-table tbody")
         tbody.innerHTML = "";
         this.usersEditableFields = {};
-        for (let user of this._users)
+        /*for (let idx=0;idx<this._users.length;idx++)
         {
-            let tr = document.createElement("tr");
-
-        }
+            let user = this.users[idx];
+        }*/
         // console.log(byPerson);
     }
 
-    addEmptyRow(data)
+    addEmptyRow(idx)
     {
-
+        let tr = document.createElement("tr");
+        // action
+        for (let [key, editable, type, data] of [
+            ["id", true, "icon", { iconName:"" , callback : null}],
+            ["name", true, "text", undefined],
+            ["firstname", true, "text", undefined],
+            ["company", true, "combo", { items : CompanyEnum }],
+            ["company", true, "combo", { items : CompanyEnum }],
+        ])
+        {
+            let td = document.createELement("td");
+            td.className = "boder-bottom-0";
+            let field = new EditableField(td, `users.${idx}.${key}`, this, editable, type, data);
+            if (key == "id" )
+            {
+                callback = (e)=>{
+                    this.removeUser(field);
+                }
+            }
+            tbody.appendChild(tr);
+        }
+        tbody.appendChild(tr);
     }
     static async main()
     {

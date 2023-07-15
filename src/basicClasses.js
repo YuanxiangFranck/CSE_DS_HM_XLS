@@ -68,7 +68,8 @@ export class EditableField
             targetReadOnly = true;
         // allow force redraw
         // if (targetReadOnly == this.readOnly) return; // nothing to do
-        let content = Utils.getAttr(this.front, this.path) || "...";
+        let content = Utils.getAttr(this.front, this.path);
+        if (content == null) content = "...";
         if (targetReadOnly)
         {
             if (commit && this.editable)
