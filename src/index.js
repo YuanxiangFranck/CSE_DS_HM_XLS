@@ -3,7 +3,7 @@ import { ClientServerManager }  from "./clientServerManager";
 import { User, Expense, Utils, EditableField }  from "./basicClasses";
 
 
-const DEFAULT_GROUPS = ["Misc","Guide","Location","Logement","Transport" ];
+const DEFAULT_GROUPS = ["Guide","Location","Logement","Transport", "Misc"];
 
 const DEFAULT_RULES = {
     "Guide" : { ratio: 0.6 },
@@ -22,24 +22,56 @@ class FrontPage
         this.expenses = [];
         this.groups = [];
         this.rules = {};
+        // Computed members
         this._nb_users = 0;
         this._totalCost = 0;
+        this._totalSub = 0;
+        this._users = []; // without super
+        this._byPerson = {};
+        this._byGroup = {};
+
+        // Init
         this.rebuild(content);
-        this.editableFields = {};
-    }
-
-    buildEditableField(id, )
-    {
-    }
-    switchEditableField(id, mode, path)
-    {
-
+        this.infoEditableFields = {};
     }
 
     recompute()
     {
-        this._nb_users = this.users.reduce((acc,val)=>val.isSuper ? acc : acc+1, 0);
-        this._totalCost = this.expenses.reduce((acc, val)=>acc+val.cost, 0);
+        this._users = [];
+        this._nb_users = 0;
+        this._byPerson = {};
+        this._byGroup = {};
+        this._totalCost = 0;
+        this._totalSub = 0;
+        for (const user of this.users)
+        {
+            if (user.isSuper) continue;
+            this._byPerson[user.name] = 0;
+            this._users.push[user.name];
+            this._nb_users++;
+        }
+        for (let exp of this.expenses)
+        {
+            // person
+            if (this._byPerson[exp.from]) // not found means super user
+            {
+                this._byPerson[exp.from] += this.expenses.cost;
+            }
+            let users = exp.target || this._users;
+            let nb_users = users.length;
+            for (let user of users)
+            {
+                this._byPerson[user] -= exp.cost / nb_users;
+            }
+            // group
+            if (this._byGroup[exp.group] == null)
+                this._byGroup[exp.group] = { cost: 0, sub: 0};
+            this._byGroup[exp.group].cost += exp.cost;
+            this._totalCost += exp.cost;
+            let sub = this.applyRule(exp.group, exp.cost);
+            this._byGroup[exp.group].cost += sub;
+            this._totalSub += sub;
+        }
     }
     pushData()
     {
@@ -119,8 +151,9 @@ class FrontPage
             ["info-nb-users", "_nb_users", false]
         ])
         {
-            this.editableFields[id] = new EditableField(id, path, this, editable);
+            this.infoEditableFields[id] = new EditableField(id, path, this, editable);
         }
+        /*
         let iconDiv = document.getElementById("info-icon");
         let iconI = iconDiv.querySelector("i");
         let textColor="text-white";
@@ -133,6 +166,7 @@ class FrontPage
 
         iconDiv.className = `${textColor} ${bg} rounded-circle p-6 d-flex align-items-center justify-content-center`;
         iconI.className = `${iIcon} fs-6`;
+        */
     }
 
     buildExpenses()
@@ -142,19 +176,6 @@ class FrontPage
     }
     buildSummary()
     {
-        let byGroups = {};
-        let total = 0;
-        for (const exp of this.expenses)
-        {
-            if (byGroups[exp.group] == null)
-                byGroups[exp.group] = { cost: 0, sub: 0};
-            byGroups[exp.group].cost += exp.cost;
-            total += exp.cost;
-        }
-        for (const [group, val] of Object.entries(byGroups))
-        {
-            val.sub = this.applyRule(group, val.cost)
-        }
         // console.log(byGroups);
 
         // console.log(total);
@@ -162,27 +183,6 @@ class FrontPage
 
     buildPerPerson()
     {
-        let byPerson = {};
-        let all_users = [];
-        for (const user of this.users)
-        {
-            if (user.isSuper) continue;
-            byPerson[user.name] = 0;
-            all_users.push[user.name];
-        }
-        for (let exp of this.expenses)
-        {
-            if (byPerson[exp.from]) // not found means super user
-            {
-                byPerson[exp.from] += this.expenses.cost;
-            }
-            let users = exp.target || all_users;
-            let nb_users = users.length;
-            for (let user of users)
-            {
-                byPerson[user] -= exp.cost / nb_users;
-            }
-        }
         // console.log(byPerson);
     }
     switchToEdit(mode)
@@ -193,7 +193,7 @@ class FrontPage
         Utils.toggleVisible("ui-edit-cancel", !readOnly);
         Utils.toggleVisible("ui-edit-start", readOnly);
         // Update info
-        for (let obj of Object.values(this.editableFields))
+        for (let obj of Object.values(this.infoEditableFields))
         {
             obj.toggle(readOnly, mode==1)
         }
