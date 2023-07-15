@@ -149,6 +149,9 @@
               <i class="ti ti-menu-2"></i>
             </a>
           </li>
+          <li>
+            <h5 id="info-title" class="card-title row fw-semibold">Nom de la sortie</h5>
+          </li>
         </ul>
         <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
           <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
@@ -188,7 +191,7 @@
             <div id="main-summary" class="card-body p-4">
               <div class="row">
                 <div class="col-10">
-                  <h5 id="info-title" class="card-title mb-3 fw-semibold">Nom de la sortie</h5>
+                  <h5 class="card-title mb-3 fw-semibold">Détails</h5>
                 </div>
                 <div class="col-2">
                   <div class="d-flex justify-content-end">
@@ -212,6 +215,14 @@
               </div>
               <div class="row alig n-items-start">
 
+                <div class="d-flex align-items-center mb-3">
+                  <p class="fs-3 mb-0 me-2">Thème Sortie: </p>
+                  <p id="info-type" class="text-dark me-1 fs-3 mb-0">X</p>
+                </div>
+                <div class="d-flex align-items-center mb-3">
+                  <p class="fs-3 mb-0 me-2">Lieu Sortie: </p>
+                  <p id="info-where" class="text-dark me-1 fs-3 mb-0">X</p>
+                </div>
                 <div class="d-flex align-items-center mb-3">
                   <p class="fs-3 mb-0 me-2">Responsable(s): </p>
                   <p id="info-resp" class="text-dark me-1 fs-3 mb-0">participants</p>
@@ -241,42 +252,45 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-lg-6">
-        <!-- Monthly Earnings -->
-        <div class="card">
-          <div class="card-body">
-            <div class="row alig n-items-start">
-              <div class="col-11">
-                <h5 class="card-title mb-9 fw-semibold">Résumé des dépenses </h5>
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Dépenses: </p>
-                  <p id="info-spent" class="text-dark me-1 fs-3 mb-0">X</p>
-                  <p class="fs-3 mb-0">€</p>
+
+        <div class="col-lg-6">
+          <!-- Monthly Earnings -->
+          <div class="card">
+            <div class="card-body">
+              <div class="row alig n-items-start">
+                <div class="col-11">
+                  <h5 class="card-title mb-9 fw-semibold">Résumé des dépenses </h5>
+                  <div class="d-flex align-items-center mb-3">
+                    <p class="fs-3 mb-0 me-2">Dépenses: </p>
+                    <p id="info-spent" class="text-dark me-1 fs-3 mb-0">X</p>
+                    <p class="fs-3 mb-0">€</p>
+                  </div>
+                  <div class="d-flex align-items-center mb-3">
+                    <p class="fs-3 mb-0 me-2">Subvention: </p>
+                    <p id="info-sub" class="text-dark me-1 fs-3 mb-0">X</p>
+                    <p class="fs-3 mb-0">€</p>
+                  </div>
+                  <div class="d-flex align-items-center mb-3">
+                    <p class="fs-3 mb-0 me-2">Prix Moyen: </p>
+                    <p id="info-avg" class="text-dark me-1 fs-3 mb-0">X</p>
+                    <p class="text-dark me-1 fs-3 mb-0">€ / Personnes</p>
+                  </div>
                 </div>
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Subvention: </p>
-                  <p id="info-sub" class="text-dark me-1 fs-3 mb-0">X</p>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Prix Moyen: </p>
-                  <p id="info-avg" class="text-dark me-1 fs-3 mb-0">X</p>
-                  <p class="text-dark me-1 fs-3 mb-0">€ / Personnes</p>
-                </div>
-              </div>
-              <div class="col-1">
-                <div class="d-flex justify-content-end">
-                  <div
-                    class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
-                    <i class="ti ti-currency-dollar fs-6"></i>
+                <div class="col-1">
+                  <div class="d-flex justify-content-end">
+                    <div
+                      class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
+                      <i class="ti ti-currency-dollar fs-6"></i>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div id="earning"></div>
           </div>
-          <div id="earning"></div>
         </div>
-      </div>
+
+      </div >
     </div>
     <!---- Row 2 : Dépenses -->
     <div class="row">

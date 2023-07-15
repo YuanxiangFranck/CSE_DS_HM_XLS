@@ -22,8 +22,7 @@ export class User
 
     get name()
     {
-        if (this.isSuper)
-            return this._name.replace(SUPER_USER_PREFIX, "");
+        return this._name.replace(SUPER_USER_PREFIX, "");
         return this._name;
     }
 }
@@ -42,6 +41,7 @@ export class Expense
 
     toJson()
     {
+        if (this.isSuper)
         return {
             when : this.when,
             from : this.from,
@@ -54,6 +54,7 @@ export class Expense
 
     static fromJson(input)
     {
+        if (input == null) return undefined;
         return new Expense(input.when, input.from, input.what, input.cost, input.group, input.target);
     }
 }
@@ -82,17 +83,18 @@ export class EditableField
 
     toggle(toReadOnly, commit)
     {
-        if (!this.editable) return;
-        const targetReadOnly = toReadOnly == null ? !this.readOnly : toReadOnly;
-        if (targetReadOnly == this.readOnly)
-            return; // nothing to do
-        let content = Utils.getAttr(this.front, this.path);
+        let targetReadOnly = toReadOnly == null ? !this.readOnly : toReadOnly;
+        if (!this.editable)
+            targetReadOnly = true;
+        // allow force redraw
+        // if (targetReadOnly == this.readOnly) return; // nothing to do
+        let content = Utils.getAttr(this.front, this.path) || "...";
         if (targetReadOnly)
         {
-            if (commit)
+            if (commit && this.editable)
             {
                 let obj = document.querySelector(`${this.htmlId} input`);
-                if (obj.value && obj.value !== "")
+                if (obj && obj.value && obj.value !== "")
                 {
                     content = obj.value;
                     this.setAttr(content);

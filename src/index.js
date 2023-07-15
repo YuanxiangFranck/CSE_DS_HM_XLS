@@ -89,8 +89,20 @@ class FrontPage
     {
         // clear data
         this.info = content.info
-        this.users = content?.users?.map((u)=>new User(u)) || [];
-        this.expenses = content?.expenses?.map((e)=>Expense.fromJson(e)) || [];
+        this.users = [];
+        for (let u of content?.users || [])
+        {
+
+            if(u)
+                this.users.push(new User(u));
+        }
+        this.expenses = [];
+        for (let e of content?.expenses || [])
+        {
+            if (e)
+                this.expenses.push(Expense.fromJson(e));
+        }
+
         this.groups = content.groups || DEFAULT_GROUPS;
         this.rules = content.rules || DEFAULT_RULES;
         this.recompute();
@@ -145,6 +157,8 @@ class FrontPage
         name.innerText = this.info.title;
         for (const [id, path, editable, type] of [
             ["#info-title", "info.title", true, "text"],
+            ["#info-where", "info.destination", true, "text"],
+            ["#info-type", "info.type", true, "text"],
             ["#info-start-date", "info.start", true, "date"],
             ["#info-end-date", "info.end", true, "date"],
             ["#info-resp", "info.responsible", true, "text"],
@@ -179,6 +193,11 @@ class FrontPage
     buildExpenses()
     {
         // console.log(this.expenses)
+        Utils.setText("#info-spent", this._totalCost);
+        Utils.setText("#info-sub", this._totalCost);
+        let val = (this._totalCost - this._totalSub) / this._nb_users;
+        val = Math.round(val*100) / 100;
+        Utils.setText("#info-avg", val);
 
     }
     buildSummary()
