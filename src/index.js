@@ -1,6 +1,6 @@
 "use strict";
 import { ClientServerManager }  from "./clientServerManager";
-import { User, Expense, Utils, EditableField }  from "./basicClasses";
+import { User, Expense, Utils, EditableField , CompanyEnum }  from "./basicClasses";
 
 
 const DEFAULT_GROUPS = ["Guide","Location","Logement","Transport", "Misc"];
@@ -45,7 +45,7 @@ class FrontPage
         this._totalSub = 0;
         for (const user of this.users)
         {
-            if (user.isSuper) continue;
+            if (user.isSuperUser) continue;
             this._byPerson[user.name] = 0;
             this._users.push[user.name];
             this._nb_users++;
@@ -65,6 +65,7 @@ class FrontPage
             }
             // group
             if (this._byGroup[exp.group] == null)
+            groups: this.groups,
                 this._byGroup[exp.group] = { cost: 0, sub: 0};
             this._byGroup[exp.group].cost += exp.cost;
             this._totalCost += exp.cost;
@@ -78,29 +79,32 @@ class FrontPage
         this.recompute()
         this.manager.saveContent({
             info: this.info,
-            users : this.users.map((u)=>u.name),
-            expenses : this.expenses.map(e=>e.toJson()),
-            groups: this.groups,
+            users : this.users.map((u)=>JSON.stringify(u)),
+            expenses : this.expenses.map(e=>JSON.stringify(e)),
             rules : this.rules
-        })
+        });
     }
 
     rebuild(content)
     {
         // clear data
-        this.info = content.info
+        this.info = content.info;
         this.users = [];
         for (let u of content?.users || [])
         {
-
-            if(u)
-                this.users.push(new User(u));
+            let user = new User(u);
+            if (user.name)
+                this.users.push(user);
+        }
+        if (this.users.length === 0)
+        {
+            this.users.push(new User({ firstname: "Dassault", name: "Sport", company: CompanyEnum.DA, isSuperUser : true}));
         }
         this.expenses = [];
         for (let e of content?.expenses || [])
         {
             if (e)
-                this.expenses.push(Expense.fromJson(e));
+                this.expenses.push(new Expense(e));
         }
 
         this.groups = content.groups || DEFAULT_GROUPS;
@@ -151,7 +155,6 @@ class FrontPage
 
     buildInfo()
     {
-        console.log(this.info);
         let body = document.getElementById("main-summary");
         let name = document.getElementById("info-title");
         name.innerText = this.info.title;
@@ -207,13 +210,16 @@ class FrontPage
         let idx = 1;
         let tbody = document.querySelector("#users-table tbody")
         tbody.innerHTML = "";
+        this.usersEditableFields = {};
         for (let user of this._users)
         {
+            let tr = document.createElement("tr");
+
         }
         // console.log(byPerson);
     }
 
-    addUserRow(data)
+    addEmptyRow(data)
     {
 
     }
@@ -221,8 +227,9 @@ class FrontPage
     {
         let manager = new ClientServerManager();
         let content = await manager.fetchSavedContent();
-        // console.log(content)
         let front = new FrontPage(manager, content);
+        console.log(front)
+        window.front = front;
         window.clear = ()=>front.rebuild();
         window.debug = ()=>{
             front.info = {

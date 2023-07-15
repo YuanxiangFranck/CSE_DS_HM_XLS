@@ -1,62 +1,42 @@
-const SUPER_USER_PREFIX = "__super__";
-let USER_COUNT = 1;
+
+export const CompanyEnum = {
+    DS: 0,
+    DSExt: 1,
+    DA: 2,
+    DAExt: 3
+};
 export class User
 {
-    constructor (name, isSuperUser=false)
+    constructor (input)
     {
-        if (name == null) 
-        {
-            name = `User ${USER_COUNT++}`;
-        }
-        if (isSuperUser)
-        {
-            this._name = SUPER_USER_PREFIX + name;
-            this.isSuper = true;
-        }
-        else
-        {
-            this._name = name;
-            this.isSuper = name.startsWith(SUPER_USER_PREFIX);
-        }
+        this.name = input.name;
+        this.firstname = input.firstname;
+        this.company = input.company;
+        this.isSuperUser = input.isSuperUser;
     }
 
-    get name()
+    get fullname()
     {
-        return this._name.replace(SUPER_USER_PREFIX, "");
-        return this._name;
+        return `${this.firstname} ${this.name}`;
+    }
+    get shortname()
+    {
+        return `${this.firstname} ${this.name[0]}.`;
     }
 }
 
 export class Expense
 {
-    constructor (when, from, what, cost, group, target )
+    constructor (input)
     {
-        this.when = when;
-        this.from = from;
-        this.what = what;
-        this.cost = cost;
-        this.group = group;
-        this.target = target;
+        this.when = input.when;
+        this.from = input.from;
+        this.what = input.what;
+        this.cost = input.cost;
+        this.group = input.group;
+        this.target = input.target;
     }
 
-    toJson()
-    {
-        if (this.isSuper)
-        return {
-            when : this.when,
-            from : this.from,
-            what : this.what,
-            cost : this.cost,
-            group : this.group,
-            target : this.target,
-        };
-    }
-
-    static fromJson(input)
-    {
-        if (input == null) return undefined;
-        return new Expense(input.when, input.from, input.what, input.cost, input.group, input.target);
-    }
 }
 
 export class EditableField
