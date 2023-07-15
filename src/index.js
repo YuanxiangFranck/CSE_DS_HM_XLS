@@ -200,16 +200,22 @@ class FrontPage
         Utils.setText("#info-avg", val);
 
     }
-    buildSummary()
-    {
-        // console.log(byGroups);
 
-        // console.log(total);
+
+    buildUsers()
+    {
+        let idx = 1;
+        let tbody = document.querySelector("#users-table tbody")
+        tbody.innerHTML = "";
+        for (let user of this._users)
+        {
+        }
+        // console.log(byPerson);
     }
 
-    buildPerPerson()
+    addUserRow(data)
     {
-        // console.log(byPerson);
+
     }
     static async main()
     {
@@ -236,6 +242,7 @@ class FrontPage
 
         front.buildInfo();
         front.buildExpenses();
+        front.buildUsers();
         // front.buildSummary();
     }
 }

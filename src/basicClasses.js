@@ -63,7 +63,7 @@ export class EditableField
 {
     constructor (htmlId, field_path, front, editable, type, data)
     {
-        this.htmlId = htmlId;
+        this.html = htmlId instanceof HTMLElement ? htmlId : document.querySelector(htmlId);
         this.path = field_path.split(".");
         this.front = front;
         this.editable = editable;
@@ -93,7 +93,7 @@ export class EditableField
         {
             if (commit && this.editable)
             {
-                let obj = document.querySelector(`${this.htmlId} input`);
+                let obj = this.html.querySelector(`input`);
                 if (obj && obj.value && obj.value !== "")
                 {
                     content = obj.value;
@@ -111,7 +111,7 @@ export class EditableField
 
     _buildReadOnly(content)
     {
-        Utils.setText(this.htmlId, content);
+        Utils.setText(this.html, content);
     }
 
     _buildEditable(content)
@@ -123,9 +123,8 @@ export class EditableField
         {
             input.value = content;
         }
-        let elem = document.querySelector(this.htmlId);
-        elem.innerHTML = ""; // lazy empty
-        elem.appendChild(input);
+        this.html.innerHTML = ""; // lazy empty
+        this.html.appendChild(input);
     }
 
 }
@@ -139,15 +138,21 @@ export class Utils
 
     }
 
+    static getElems(id)
+    {
+        let out = id  instanceof HTMLElement ? [id ] : document.querySelectorAll(id);
+        if (out.length === 0) throw new Error("Empty selection");
+        return out;
+    }
     static setText(id, content)
     {
-        for (let elem of document.querySelectorAll(id))
+        for (let elem of Utils.getElems(id))
             elem.innerHTML = content;
     }
 
     static toggleVisible(id, visible)
     {
-        for (let elem of document.querySelectorAll(id))
+        for (let elem of Utils.getElems(id))
             elem.style.display = visible ? "flex" : "none";
     }
 
