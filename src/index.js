@@ -173,19 +173,16 @@ class FrontPage
         {
             this.infoEditableFields[id] = new EditableField(id, path, this, editable, type);
         }
-        this.switchToEditInfo(-1);
-        // build event listeners
-        document.getElementById("info-edit-start").addEventListener("click", this.switchToEditInfo.bind(this, 0));
-        document.getElementById("info-edit-commit").addEventListener("click", this.switchToEditInfo.bind(this, 1));
-        document.getElementById("info-edit-cancel").addEventListener("click", this.switchToEditInfo.bind(this, -1));
+        this.switchToEdit(-1);
     }
 
-    switchToEditInfo(mode)
+    switchToEdit(mode)
     {
         const readOnly = mode !== 0;
         // update nav bag
         Utils.toggleVisible("#info-edit-commit", !readOnly);
         Utils.toggleVisible("#info-edit-cancel", !readOnly);
+        Utils.toggleVisible("#user-edit-add", !readOnly);
         Utils.toggleVisible("#info-edit-start", readOnly);
         // Update info
         for (let obj of Object.values(this.infoEditableFields))
@@ -210,9 +207,9 @@ class FrontPage
 
     buildUsers()
     {
+        this.usersEditableFields = {};
         let tbody = document.querySelector("#users-table tbody")
         tbody.innerHTML = "";
-        this.usersEditableFields = {};
         /*for (let idx=0;idx<this._users.length;idx++)
         {
             let user = this.users[idx];
@@ -220,30 +217,41 @@ class FrontPage
         // console.log(byPerson);
     }
 
-    addEmptyRow(idx)
+    addRowUser(idx)
     {
+        if (idx == null)
+        {
+            idx = this._nb_users+1;
+            this._users[idx] = new User({name : `User ${idx}`, firstname : `FirstName ${idx}`, id: idx});
+        }
+        let tbody = document.querySelector("#users-table tbody");
         let tr = document.createElement("tr");
         // action
         for (let [key, editable, type, data] of [
-            ["id", true, "icon", { iconName:"" , callback : null}],
+            ["id", true, "icon", { iconName:"" , callback : ()=>this.removeUser(idx)}],
             ["name", true, "text", undefined],
             ["firstname", true, "text", undefined],
             ["company", true, "combo", { items : CompanyEnum }],
-            ["company", true, "combo", { items : CompanyEnum }],
+            ["toPay", false, "text", undefined],
         ])
         {
-            let td = document.createELement("td");
+            let td = document.createElement("td");
             td.className = "boder-bottom-0";
-            let field = new EditableField(td, `users.${idx}.${key}`, this, editable, type, data);
-            if (key == "id" )
-            {
-                callback = (e)=>{
-                    this.removeUser(field);
-                }
-            }
-            tbody.appendChild(tr);
+            let field = new EditableField(td, `_users.${idx}.${key}`, this, editable, type, data);
+            tr.appendChild(td);
         }
         tbody.appendChild(tr);
+    }
+
+    addEventListener()
+    {
+        // build event listeners
+        document.getElementById("info-edit-start").addEventListener("click", this.switchToEdit.bind(this, 0));
+        document.getElementById("info-edit-commit").addEventListener("click", this.switchToEdit.bind(this, 1));
+        document.getElementById("info-edit-cancel").addEventListener("click", this.switchToEdit.bind(this, -1));
+        document.getElementById("user-edit-add").addEventListener("click", this.addRowUser.bind(this, undefined));
+
+
     }
     static async main()
     {
@@ -272,6 +280,7 @@ class FrontPage
         front.buildInfo();
         front.buildExpenses();
         front.buildUsers();
+        front.addEventListener();
         // front.buildSummary();
     }
 }

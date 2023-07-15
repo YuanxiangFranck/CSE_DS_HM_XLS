@@ -155,6 +155,31 @@
         </ul>
         <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
           <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+
+            <li  class="nav-item d-block d-xl-none">
+              <div id="info-edit-start">
+
+                <a class="nav-link nav-icon-hover" href="javascript:void(0)">
+                  <i class="ti ti-edit fs-6"></i>
+                </a>
+              </div>
+            </li>
+            <li class="nav-item d-block d-xl-none">
+              <div id="info-edit-cancel"  style="display:none;">
+
+                <a class="nav-link nav-icon-hover" href="javascript:void(0)">
+                  <i class="ti ti-edit-off fs-6"></i>
+                </a>
+              </div>
+            </li>
+            <li  class="nav-item d-block d-xl-none">
+              <div id="info-edit-commit" style="display:none;">
+
+                <a class="nav-link sidartoggler nav-icon-hover" href="javascript:void(0)">
+                  <i class="ti ti-square-check fs-8"></i>
+                </a>
+              </div>
+            </li>
             <li class="nav-item dropdown">
               <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
                 aria-expanded="false">
@@ -184,72 +209,35 @@
     <!--  Header End -->
     <div class="container-fluid">
       <!--  Row Summary -->
-      <div class="row">
-        <div class="col-lg-6">
-          <!-- Yearly Breakup -->
-          <div class="card overflow-hidden">
-            <div id="main-summary" class="card-body p-4">
-              <div class="row">
-                <div class="col-10">
-                  <h5 class="card-title mb-3 fw-semibold">Détails</h5>
-                </div>
-                <div class="col-2">
-                  <div class="d-flex justify-content-end">
-                    <div id="info-edit-start">
-                      <a class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
-                        <i class="ti ti-edit fs-6"></i>
-                      </a>
-                    </div>
-                    <div id="info-edit-cancel">
-                      <a class="text-white bg-danger rounded-circle p-6 d-flex align-items-center justify-content-center">
-                        <i class="ti ti-edit-off fs-8"></i>
-                      </a>
-                    </div>
-                    <div id="info-edit-commit">
-                      <a class="text-white bg-success rounded-circle p-6 d-flex align-items-center justify-content-center">
-                        <i class="ti ti-square-check fs-8"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row alig n-items-start">
+      <div class="card overflow-hidden">
+        <div id="main-summary" class="card-body p-4">
+          <div class="row">
+              <h5 class="card-title mb-3 fw-semibold">Détails</h5>
+          </div>
+          <div class="row alig n-items-start">
 
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Thème Sortie: </p>
-                  <p id="info-type" class="text-dark me-1 fs-3 mb-0">X</p>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Lieu Sortie: </p>
-                  <p id="info-where" class="text-dark me-1 fs-3 mb-0">X</p>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Responsable(s): </p>
-                  <p id="info-resp" class="text-dark me-1 fs-3 mb-0">participants</p>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Nb Participants: </p>
-                  <p id="info-nb-users" class="text-dark me-1 fs-3 mb-0">X</p>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                  <p class="fs-3 mb-0 me-2">Date: </p>
-                  <p id="info-start-date" class="text-dark me-5 fs-3 mb-0">X</p>
-                  <p id="info-end-date" class="text-dark me-1 fs-3 mb-0">X</p>
-                </div>
-                <!-- <div class="d-flex align-items-center">
-                    <span
-                      class="me-1 rounded-circle bg-light-success round-20 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-calendar"></i>
-                    </span>
-                    <div class="me-4">
-                      <span id="info-start-date" class="fs-2">Début</span>
-                    </div>
-                    <div>
-                      <span id="info-end-date" class="fs-2">Fin</span>
-                    </div>
-                  </div> -->
-              </div>
+            <div class="d-flex align-items-center mb-3">
+              <p class="fs-3 mb-0 me-2">Thème Sortie: </p>
+              <p id="info-type" class="text-dark me-1 fs-3 mb-0">X</p>
             </div>
+            <div class="d-flex align-items-center mb-3">
+              <p class="fs-3 mb-0 me-2">Lieu Sortie: </p>
+              <p id="info-where" class="text-dark me-1 fs-3 mb-0">X</p>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <p class="fs-3 mb-0 me-2">Responsable(s): </p>
+              <p id="info-resp" class="text-dark me-1 fs-3 mb-0">participants</p>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <p class="fs-3 mb-0 me-2">Nb Participants: </p>
+              <p id="info-nb-users" class="text-dark me-1 fs-3 mb-0">X</p>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <p class="fs-3 mb-0 me-2">Date: </p>
+              <p id="info-start-date" class="text-dark me-5 fs-3 mb-0">X</p>
+              <p id="info-end-date" class="text-dark me-1 fs-3 mb-0">X</p>
+            </div>
+
           </div>
         </div>
 
@@ -258,32 +246,22 @@
           <div class="card">
             <div class="card-body">
               <div class="row alig n-items-start">
-                <div class="col-11">
-                  <h5 class="card-title mb-9 fw-semibold">Résumé des dépenses </h5>
-                  <div class="d-flex align-items-center mb-3">
-                    <p class="fs-3 mb-0 me-2">Dépenses: </p>
-                    <p id="info-spent" class="text-dark me-1 fs-3 mb-0">X</p>
-                    <p class="fs-3 mb-0">€</p>
-                  </div>
-                  <div class="d-flex align-items-center mb-3">
-                    <p class="fs-3 mb-0 me-2">Subvention: </p>
-                    <p id="info-sub" class="text-dark me-1 fs-3 mb-0">X</p>
-                    <p class="fs-3 mb-0">€</p>
-                  </div>
-                  <div class="d-flex align-items-center mb-3">
-                    <p class="fs-3 mb-0 me-2">Prix Moyen: </p>
-                    <p id="info-avg" class="text-dark me-1 fs-3 mb-0">X</p>
-                    <p class="text-dark me-1 fs-3 mb-0">€ / Personnes</p>
-                  </div>
+                <h5 class="card-title mb-9 fw-semibold">Résumé des dépenses </h5>
+                <div class="d-flex align-items-center mb-3">
+                  <p class="fs-3 mb-0 me-2">Dépenses: </p>
+                  <p id="info-spent" class="text-dark me-1 fs-3 mb-0">X</p>
+                  <p class="fs-3 mb-0">€</p>
                 </div>
-                <div class="col-1">
-                  <div class="d-flex justify-content-end">
-                    <div
-                      class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-currency-dollar fs-6"></i>
-                    </div>
-                  </div>
+                <div class="d-flex align-items-center mb-3">
+                  <p class="fs-3 mb-0 me-2">Subvention: </p>
+                  <p id="info-sub" class="text-dark me-1 fs-3 mb-0">X</p>
+                  <p class="fs-3 mb-0">€</p>
                 </div>
+                <div class="d-flex align-items-center mb-3">
+                  <p class="fs-3 mb-0 me-2">Prix Moyen: </p>
+                  <p id="info-avg" class="text-dark me-1 fs-3 mb-0">X</p>
+                  <p class="text-dark me-1 fs-3 mb-0">€ / Personnes</p>
+                  </div>
               </div>
             </div>
             <div id="earning"></div>
@@ -305,21 +283,6 @@
                   <div style="display:none" id="user-edit-add">
                     <a class="text-white bg-primary rounded-circle p-6 d-flex align-items-center justify-content-center">
                       <i class="ti ti-user-plus fs-6"></i>
-                    </a>
-                  </div>
-                  <div id="user-edit-start">
-                    <a class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-edit fs-6"></i>
-                    </a>
-                  </div>
-                  <div style="display:none" id="user-edit-cancel">
-                    <a class="text-white bg-danger rounded-circle p-6 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-edit-off fs-6"></i>
-                    </a>
-                  </div>
-                  <div style="display:none" id="user-edit-commit">
-                    <a class="text-white bg-success rounded-circle p-6 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-square-check fs-6"></i>
                     </a>
                   </div>
                 </div>

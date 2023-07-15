@@ -11,8 +11,10 @@ export class User
     {
         this.name = input.name;
         this.firstname = input.firstname;
-        this.company = input.company;
-        this.isSuperUser = input.isSuperUser;
+        this.company = input.company || CompanyEnum.DS;
+        this.isSuperUser = input.isSuperUser || false;
+        this.id = input.id;
+        this.toPay = 0;
     }
 
     get fullname()
