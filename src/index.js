@@ -143,30 +143,37 @@ class FrontPage
         let body = document.getElementById("main-summary");
         let name = document.getElementById("info-title");
         name.innerText = this.info.title;
-        for (const [id, path, editable] of [
-            ["info-title", "info.title", true],
-            ["info-start-date", "info.start", true],
-            ["info-end-date", "info.end", true],
-            ["info-resp", "info.responsible", true],
-            ["info-nb-users", "_nb_users", false]
+        for (const [id, path, editable, type] of [
+            ["#info-title", "info.title", true, "text"],
+            ["#info-start-date", "info.start", true, "date"],
+            ["#info-end-date", "info.end", true, "date"],
+            ["#info-resp", "info.responsible", true, "text"],
+            ["#info-nb-users", "_nb_users", false, "text"]
         ])
         {
-            this.infoEditableFields[id] = new EditableField(id, path, this, editable);
+            this.infoEditableFields[id] = new EditableField(id, path, this, editable, type);
         }
-        /*
-        let iconDiv = document.getElementById("info-icon");
-        let iconI = iconDiv.querySelector("i");
-        let textColor="text-white";
-        let bg="bg-secondary";
-        let iIcon = "ti ti-mountain";
-        switch (this.info.type)
-        {
-            default: // icon montagne
-        }
+        this.switchToEditInfo(-1);
+        // build event listeners
+        document.getElementById("info-edit-start").addEventListener("click", this.switchToEditInfo.bind(this, 0));
+        document.getElementById("info-edit-commit").addEventListener("click", this.switchToEditInfo.bind(this, 1));
+        document.getElementById("info-edit-cancel").addEventListener("click", this.switchToEditInfo.bind(this, -1));
+    }
 
-        iconDiv.className = `${textColor} ${bg} rounded-circle p-6 d-flex align-items-center justify-content-center`;
-        iconI.className = `${iIcon} fs-6`;
-        */
+    switchToEditInfo(mode)
+    {
+        const readOnly = mode !== 0;
+        // update nav bag
+        Utils.toggleVisible("#info-edit-commit", !readOnly);
+        Utils.toggleVisible("#info-edit-cancel", !readOnly);
+        Utils.toggleVisible("#info-edit-start", readOnly);
+        // Update info
+        for (let obj of Object.values(this.infoEditableFields))
+        {
+            obj.toggle(readOnly, mode==1)
+        }
+        this.pushData();
+
     }
 
     buildExpenses()
@@ -184,21 +191,6 @@ class FrontPage
     buildPerPerson()
     {
         // console.log(byPerson);
-    }
-    switchToEdit(mode)
-    {
-        const readOnly = mode !== 0;
-        // update nav bag
-        Utils.toggleVisible("ui-edit-commit", !readOnly);
-        Utils.toggleVisible("ui-edit-cancel", !readOnly);
-        Utils.toggleVisible("ui-edit-start", readOnly);
-        // Update info
-        for (let obj of Object.values(this.infoEditableFields))
-        {
-            obj.toggle(readOnly, mode==1)
-        }
-        this.pushData();
-
     }
     static async main()
     {
@@ -226,11 +218,6 @@ class FrontPage
         front.buildInfo();
         front.buildExpenses();
         // front.buildSummary();
-        front.switchToEdit(-1);
-        // build event listeners
-        document.getElementById("ui-edit-start").addEventListener("click", front.switchToEdit.bind(front, 0));
-        document.getElementById("ui-edit-commit").addEventListener("click", front.switchToEdit.bind(front, 1));
-        document.getElementById("ui-edit-cancel").addEventListener("click", front.switchToEdit.bind(front, -1));
     }
 }
 

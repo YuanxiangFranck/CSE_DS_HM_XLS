@@ -60,14 +60,15 @@ export class Expense
 
 export class EditableField
 {
-    constructor (htmlId, field_path, front, editable)
+    constructor (htmlId, field_path, front, editable, type)
     {
         this.htmlId = htmlId;
         this.path = field_path.split(".");
         this.front = front;
-        this.readOnly = true; // always start read only
         this.editable = editable;
-        this.build();
+        this.type = type;
+        this.readOnly = true; // init by buidl
+        this._buildReadOnly(this.getAttr());
     }
     getAttr()
     {
@@ -76,22 +77,6 @@ export class EditableField
 
     setAttr(content)
     {
-        Utils.setAttr(this.front, this.path, content);
-    }
-
-    build(content)
-    {
-        if (content==null)
-            content = this.getAttr()
-        if (this.readOnly)
-        {
-            Utils.setText(this.htmlId, content);
-        }
-        else
-        {
-
-        }
-        // update field
         Utils.setAttr(this.front, this.path, content);
     }
 
@@ -106,29 +91,39 @@ export class EditableField
         {
             if (commit)
             {
-                let obj = document.querySelector(`#${this.htmlId} input`);
+                let obj = document.querySelector(`${this.htmlId} input`);
                 if (obj.value && obj.value !== "")
                 {
                     content = obj.value;
                     this.setAttr(content);
                 }
             }
-            Utils.setText(this.htmlId, content);
+            this._buildReadOnly(content)
         }
         else
         {
-            Utils.setText(this.htmlId, `<input placeholder="${content}">`);
+            this._buildEditable(content);
         }
         this.readOnly = targetReadOnly;
     }
 
-    _buildReadOnly()
+    _buildReadOnly(content)
     {
-
+        Utils.setText(this.htmlId, content);
     }
 
-    _buildEditable()
+    _buildEditable(content)
     {
+        let input = document.createElement("input");
+        input.setAttribute("type", this.type);
+        input.setAttribute("placeholder", content);
+        if (this.type == "date")
+        {
+            input.value = content;
+        }
+        let elem = document.querySelector(this.htmlId);
+        elem.innerHTML = ""; // lazy empty
+        elem.appendChild(input);
     }
 
 }
@@ -144,13 +139,14 @@ export class Utils
 
     static setText(id, content)
     {
-        document.getElementById(id).innerHTML = content;
+        for (let elem of document.querySelectorAll(id))
+            elem.innerHTML = content;
     }
 
     static toggleVisible(id, visible)
     {
-        let elem = document.getElementById(id);
-        elem.style.display = visible ? "flex" : "none";
+        for (let elem of document.querySelectorAll(id))
+            elem.style.display = visible ? "flex" : "none";
     }
 
     static setAttr(obj, path, val)
