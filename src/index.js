@@ -1,6 +1,6 @@
 "use strict";
 import { ClientServerManager }  from "./clientServerManager";
-import { User, Expense, Utils }  from "./basicClasses";
+import { User, Expense, Utils, EditableField }  from "./basicClasses";
 
 
 const DEFAULT_GROUPS = ["Misc","Guide","Location","Logement","Transport" ];
@@ -25,7 +25,17 @@ class FrontPage
         this._nb_users = 0;
         this._totalCost = 0;
         this.rebuild(content);
+        this.editableFields = {};
     }
+
+    buildEditableField(id, )
+    {
+    }
+    switchEditableField(id, mode, path)
+    {
+
+    }
+
     recompute()
     {
         this._nb_users = this.users.reduce((acc,val)=>val.isSuper ? acc : acc+1, 0);
@@ -51,7 +61,7 @@ class FrontPage
         this.expenses = content?.expenses?.map((e)=>Expense.fromJson(e)) || [];
         this.groups = content.groups || DEFAULT_GROUPS;
         this.rules = content.rules || DEFAULT_RULES;
-        this.recompute()
+        this.recompute();
     }
 
     applyRule(group, sum)
@@ -101,16 +111,15 @@ class FrontPage
         let body = document.getElementById("main-summary");
         let name = document.getElementById("info-title");
         name.innerText = this.info.title;
-        for (const [id, content] of [
-            ["info-title", this.info.title],
-            ["info-start-date", this.info.start],
-            ["info-end-date", this.info.end],
-            ["info-resp", this.info.responsible.join(", ")],
-            ["info-nb-users", this._nb_users]
+        for (const [id, path, editable] of [
+            ["info-title", "info.title", true],
+            ["info-start-date", "info.start", true],
+            ["info-end-date", "info.end", true],
+            ["info-resp", "info.responsible", true],
+            ["info-nb-users", "_nb_users", false]
         ])
         {
-
-            Utils.setText(id, content);
+            this.editableFields[id] = new EditableField(id, path, this, editable);
         }
         let iconDiv = document.getElementById("info-icon");
         let iconI = iconDiv.querySelector("i");
@@ -176,7 +185,21 @@ class FrontPage
         }
         // console.log(byPerson);
     }
+    switchToEdit(mode)
+    {
+        const readOnly = mode !== 0;
+        // update nav bag
+        Utils.toggleVisible("ui-edit-commit", !readOnly);
+        Utils.toggleVisible("ui-edit-cancel", !readOnly);
+        Utils.toggleVisible("ui-edit-start", readOnly);
+        // Update info
+        for (let obj of Object.values(this.editableFields))
+        {
+            obj.toggle(readOnly, mode==1)
+        }
+        this.pushData();
 
+    }
     static async main()
     {
         let manager = new ClientServerManager();
@@ -190,7 +213,7 @@ class FrontPage
                 type: "Alpinisme",
                 start: "9/07/2023",
                 end: "11/07/2023",
-                responsible : ["Franck WANG"]
+                responsible : "Franck WANG"
             }
             front.addUsers(["__super__CE", "aaaaa", "bbbbb", "ccccccccc", "Franck WANG"])
             front.users[0]._isSuper
@@ -199,10 +222,15 @@ class FrontPage
                 new Expense(null, "Franck WANG", "Location Matos", 100, "Location", ["bbbbb"]),
             ])
         }
-        
+
         front.buildInfo();
         front.buildExpenses();
-        front.buildSummary();
+        // front.buildSummary();
+        front.switchToEdit(-1);
+        // build event listeners
+        document.getElementById("ui-edit-start").addEventListener("click", front.switchToEdit.bind(front, 0));
+        document.getElementById("ui-edit-commit").addEventListener("click", front.switchToEdit.bind(front, 1));
+        document.getElementById("ui-edit-cancel").addEventListener("click", front.switchToEdit.bind(front, -1));
     }
 }
 
