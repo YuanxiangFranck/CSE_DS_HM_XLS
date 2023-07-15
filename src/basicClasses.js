@@ -66,4 +66,9 @@ export class Utils
         if (rule == null) return sum;
 
     }
+
+    static setText(id, content)
+    {
+        document.getElementById(id).innerText = content;
+    }
 }

@@ -1,6 +1,6 @@
 "use strict";
 import { ClientServerManager }  from "./clientServerManager";
-import { User, Expense }  from "./basicClasses";
+import { User, Expense, Utils }  from "./basicClasses";
 
 
 const DEFAULT_GROUPS = ["Misc","Guide","Location","Logement","Transport" ];
@@ -98,11 +98,37 @@ class FrontPage
     buildInfo()
     {
         console.log(this.info);
+        let body = document.getElementById("main-summary");
+        let name = document.getElementById("info-title");
+        name.innerText = this.info.title;
+        for (const [id, content] of [
+            ["info-title", this.info.title],
+            ["info-start-date", this.info.start],
+            ["info-end-date", this.info.end],
+            ["info-resp", this.info.responsible.join(", ")],
+            ["info-nb-users", this._nb_users]
+        ])
+        {
+
+            Utils.setText(id, content);
+        }
+        let iconDiv = document.getElementById("info-icon");
+        let iconI = iconDiv.querySelector("i");
+        let textColor="text-white";
+        let bg="bg-secondary";
+        let iIcon = "ti ti-mountain";
+        switch (this.info.type)
+        {
+            default: // icon montagne
+        }
+
+        iconDiv.className = `${textColor} ${bg} rounded-circle p-6 d-flex align-items-center justify-content-center`;
+        iconI.className = `${iIcon} fs-6`;
     }
 
     buildExpenses()
     {
-        console.log(this.expenses)
+        // console.log(this.expenses)
 
     }
     buildSummary()
@@ -120,9 +146,9 @@ class FrontPage
         {
             val.sub = this.applyRule(group, val.cost)
         }
-        console.log(byGroups);
+        // console.log(byGroups);
 
-        console.log(total);
+        // console.log(total);
     }
 
     buildPerPerson()
@@ -148,18 +174,17 @@ class FrontPage
                 byPerson[user] -= exp.cost / nb_users;
             }
         }
-        console.log(byPerson);
+        // console.log(byPerson);
     }
 
     static async main()
     {
         let manager = new ClientServerManager();
         let content = await manager.fetchSavedContent();
-        console.log(content)
+        // console.log(content)
         let front = new FrontPage(manager, content);
-        if (false)
-        {
-            front.rebuild({});
+        window.clear = ()=>front.rebuild();
+        window.debug = ()=>{
             front.info = {
                 title: "WE Alpi Débutant Juin",
                 type: "Alpinisme",
@@ -174,6 +199,7 @@ class FrontPage
                 new Expense(null, "Franck WANG", "Location Matos", 100, "Location", ["bbbbb"]),
             ])
         }
+        
         front.buildInfo();
         front.buildExpenses();
         front.buildSummary();
