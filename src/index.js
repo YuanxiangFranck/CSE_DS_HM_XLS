@@ -34,6 +34,7 @@ class FrontPage
         this._byGroup = {};
 
         // Init
+        this.readOnly = true;
         this._data = content;
         this.rebuild();
 
@@ -171,9 +172,8 @@ class FrontPage
             ["#info-nb-users", "_nb_users", false, "text"]
         ])
         {
-            this.infoEditableFields[id] = new EditableField(id, path, this, editable, type);
+            this.infoEditableFields[id] = new EditableField(this.readOnly, id, path, this, editable, type);
         }
-        this.switchToEdit(-1);
     }
 
     switchToEdit(mode)
@@ -185,6 +185,7 @@ class FrontPage
         Utils.toggleVisible("#user-edit-add", !readOnly);
         Utils.toggleVisible("#info-edit-start", readOnly);
         // Update info
+        this.readOnly = readOnly
         for (let obj of Object.values(this.infoEditableFields))
         {
             obj.toggle(readOnly, mode==1)
@@ -237,8 +238,9 @@ class FrontPage
         {
             let td = document.createElement("td");
             td.className = "boder-bottom-0";
-            let field = new EditableField(td, `_users.${idx}.${key}`, this, editable, type, data);
+            let field = new EditableField(this.readOnly, td, `_users.${idx}.${key}`, this, editable, type, data);
             tr.appendChild(td);
+            this.infoEditableFields[`user_${idx}_${key}`] = field;
         }
         tbody.appendChild(tr);
     }
@@ -276,11 +278,13 @@ class FrontPage
                 new Expense(null, "Franck WANG", "Location Matos", 100, "Location", ["bbbbb"]),
             ])
         }
+        front.readOnly = true;
 
         front.buildInfo();
         front.buildExpenses();
         front.buildUsers();
         front.addEventListener();
+        front.switchToEdit(-1);
         // front.buildSummary();
     }
 }

@@ -43,15 +43,15 @@ export class Expense
 
 export class EditableField
 {
-    constructor (htmlId, field_path, front, editable, type, data)
+    constructor (readOnly, htmlId, field_path, front, editable, type, data)
     {
         this.html = htmlId instanceof HTMLElement ? htmlId : document.querySelector(htmlId);
         this.path = field_path.split(".");
         this.front = front;
         this.editable = editable;
         this.type = type;
-        this.readOnly = true; // init by buidl
-        this._buildReadOnly(this.getAttr());
+        this.readOnly = readOnly;
+        this.toggle(this.readOnly);
     }
     getAttr()
     {
