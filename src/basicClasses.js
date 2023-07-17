@@ -1,4 +1,6 @@
 
+let STATIC_USER_COUNT = 0;
+
 export const CompanyEnum = {
     DS: 0,
     DSExt: 1,
@@ -9,11 +11,23 @@ export class User
 {
     constructor (input)
     {
+        if (typeof input == "string")
+        {
+            input = JSON.parse(input);
+        }
         this.name = input.name;
         this.firstname = input.firstname;
         this.company = input.company || CompanyEnum.DS;
         this.isSuperUser = input.isSuperUser || false;
-        this.id = input.id;
+        let id;
+        if (input.id != null)
+        {
+            STATIC_USER_COUNT = Math.max(STATIC_USER_COUNT, input.id);
+            id = input.id;
+        }
+        else
+            id = ++STATIC_USER_COUNT;
+        this.id = id;
         this.toPay = 0;
     }
 
@@ -51,16 +65,38 @@ export class EditableField
         this.editable = editable;
         this.type = type;
         this.readOnly = readOnly;
+        this.data = data;
         this.toggle(this.readOnly);
     }
     getAttr()
     {
-        return Utils.getAttr(this.front, this.path);
+        try
+        {
+            return Utils.getAttr(this.front, this.path);
+        }
+        catch(e)
+        {
+            if (this.data && this.data.canFail)
+            {
+                return undefined;
+            }
+            throw e;
+        }
     }
 
     setAttr(content)
     {
-        Utils.setAttr(this.front, this.path, content);
+        try
+        {
+            Utils.setAttr(this.front, this.path, content);
+        }
+        catch(e)
+        {
+            if (!this.data || !this.data.canFail)
+            {
+                throw e;
+            }
+        }
     }
 
     toggle(toReadOnly, commit)
@@ -70,12 +106,16 @@ export class EditableField
             targetReadOnly = true;
         // allow force redraw
         // if (targetReadOnly == this.readOnly) return; // nothing to do
-        let content = Utils.getAttr(this.front, this.path);
+        let content = this.getAttr();
         if (content == null) content = "...";
         if (targetReadOnly)
         {
             if (commit && this.editable)
             {
+                if (this.data && this.data.onPreCommit)
+                {
+                    this.data.onPreCommit();
+                }
                 let obj = this.html.querySelector(`input`);
                 if (obj && obj.value && obj.value !== "")
                 {
@@ -99,15 +139,29 @@ export class EditableField
 
     _buildEditable(content)
     {
-        let input = document.createElement("input");
-        input.setAttribute("type", this.type);
-        input.setAttribute("placeholder", content);
-        if (this.type == "date")
+        let out;
+        if (this.type === "icon")
         {
-            input.value = content;
+            out = document.createElement("div");
+            out.innerHTML = `<a class="text-white bg-danger rounded-circle p-2 d-flex align-items-center justify-content-center" href="javascript:void(0)">
+              <i class="${this.data.iconName} fs-6"></i>
+            </a>`;
+            out.addEventListener("click", this.data.onClick);
+        }
+        else
+        {
+
+            let input = document.createElement("input");
+            input.setAttribute("type", this.type);
+            input.setAttribute("placeholder", content);
+            if (this.type === "date")
+            {
+                input.value = content;
+            }
+            out = input;
         }
         this.html.innerHTML = ""; // lazy empty
-        this.html.appendChild(input);
+        this.html.appendChild(out);
     }
 
 }
@@ -164,4 +218,5 @@ export class Utils
         }
         return undefined;
     }
+
 }

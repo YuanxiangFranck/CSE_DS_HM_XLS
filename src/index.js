@@ -11,7 +11,6 @@ const DEFAULT_RULES = {
     "Transport" : { ratio: 0.5 },
     "Logement" : { ratio: 0.5,  maxi_pp: 50 }
 };
-
 class FrontPage
 {
     constructor(clientServerManager, content)
@@ -101,7 +100,7 @@ class FrontPage
         {
             let user = new User(u);
             if (user.id)
-                this.users[id] = user;
+                this._users[user.id] = user;
         }
         if (Object.keys(this._users).length === 0)
         {
@@ -188,7 +187,13 @@ class FrontPage
         this.readOnly = readOnly
         for (let obj of Object.values(this.infoEditableFields))
         {
-            obj.toggle(readOnly, mode==1)
+            let toloop;
+            if (obj instanceof EditableField)
+                toloop = [obj];
+            else
+                toloop = obj;
+            for (let elem of toloop)
+                elem.toggle(readOnly, mode==1);
         }
         this.pushData();
 
@@ -211,10 +216,10 @@ class FrontPage
         this.usersEditableFields = {};
         let tbody = document.querySelector("#users-table tbody")
         tbody.innerHTML = "";
-        /*for (let idx=0;idx<this._users.length;idx++)
+        for (let idx of Object.keys(this._users))
         {
-            let user = this.users[idx];
-        }*/
+            this.addRowUser(idx);
+        }
         // console.log(byPerson);
     }
 
@@ -222,27 +227,44 @@ class FrontPage
     {
         if (idx == null)
         {
-            idx = this._nb_users+1;
-            this._users[idx] = new User({name : `User ${idx}`, firstname : `FirstName ${idx}`, id: idx});
+            let user = new User({name : `User ${idx}`, firstname : `FirstName ${idx}`});
+            idx = user.id;
+            this._users[idx] =user;
         }
         let tbody = document.querySelector("#users-table tbody");
         let tr = document.createElement("tr");
+        let fields = [];
         // action
         for (let [key, editable, type, data] of [
-            ["id", true, "icon", { iconName:"" , callback : ()=>this.removeUser(idx)}],
-            ["name", true, "text", undefined],
-            ["firstname", true, "text", undefined],
-            ["company", true, "combo", { items : CompanyEnum }],
-            ["toPay", false, "text", undefined],
+            ["id", true, "icon", {
+                iconName:"ti ti-trash" ,
+                onClick : ()=>this.removeUser(idx),
+                canFail: true
+            }],
+            ["name", true, "text", {canFail: true}],
+            ["firstname", true, "text", {canFail: true}],
+            ["company", true, "combo", { items : CompanyEnum, canFail: true}],
+            ["toPay", false, "text", {canFail: true}],
         ])
         {
             let td = document.createElement("td");
             td.className = "boder-bottom-0";
             let field = new EditableField(this.readOnly, td, `_users.${idx}.${key}`, this, editable, type, data);
             tr.appendChild(td);
-            this.infoEditableFields[`user_${idx}_${key}`] = field;
+            fields.push(field);
         }
+        this.infoEditableFields[`user_${idx}`] = fields;
         tbody.appendChild(tr);
+    }
+
+    removeUser(idx)
+    {
+        delete this._users[idx];
+        let editables = this.infoEditableFields[`user_${idx}`];
+        let first = editables[0];
+        let torm = first.html.parentElement;
+        torm.parentElement.removeChild(torm);
+
     }
 
     addEventListener()
