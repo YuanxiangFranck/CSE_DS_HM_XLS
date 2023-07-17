@@ -1,6 +1,6 @@
 "use strict";
 import { ClientServerManager }  from "./clientServerManager";
-import { User, Expense, Utils, EditableField , CompanyEnum }  from "./basicClasses";
+import { User, Expense, Utils, CompanyEnum }  from "./basicClasses";
 import { EditableField }  from "./editableField";
 
 
