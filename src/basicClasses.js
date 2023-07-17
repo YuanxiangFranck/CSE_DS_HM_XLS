@@ -15,8 +15,6 @@ export class User
         {
             input = JSON.parse(input);
         }
-        this.name = input.name;
-        this.firstname = input.firstname;
         this.company = input.company || CompanyEnum.DS;
         this.isSuperUser = input.isSuperUser || false;
         let id;
@@ -27,7 +25,10 @@ export class User
         }
         else
             id = ++STATIC_USER_COUNT;
+
         this.id = id;
+        this.name = input.name || `Name_${this.id}`;
+        this.firstname = input.firstname || `User_${this.id}`;
         this._toPay = 0;
     }
 

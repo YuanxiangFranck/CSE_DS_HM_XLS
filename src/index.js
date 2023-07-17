@@ -40,6 +40,7 @@ class FrontPage
         // UI
         this.infoEditableFields = {};
         this.usersEditableFields = {};
+        this.expensesEditableFields = {};
     }
 
     recompute()
@@ -178,12 +179,12 @@ class FrontPage
             for (let obj of toLoop)
                 obj.toggle(readOnly, mode==1);
         }
-
+        this.recompute();
         for (let obj of Object.values(this.infoEditableFields))
         {
             obj.toggle(readOnly, mode==1);
         }
-        this.pushData();
+        this.pushData(false);
 
     }
 
@@ -201,21 +202,19 @@ class FrontPage
 
     buildUsers()
     {
-        this.usersEditableFields = {};
         let tbody = document.querySelector("#users-table tbody")
         tbody.innerHTML = "";
         for (let idx of Object.keys(this._users))
         {
             this.addRowUser(idx);
         }
-        // console.log(byPerson);
     }
 
     addRowUser(idx)
     {
         if (idx == null)
         {
-            let user = new User({name : `User ${idx}`, firstname : `FirstName ${idx}`});
+            let user = new User({});
             idx = user.id;
             this._users[idx] =user;
         }
@@ -241,14 +240,14 @@ class FrontPage
             tr.appendChild(td);
             fields.push(field);
         }
-        this.infoEditableFields[`user_${idx}`] = fields;
+        this.usersEditableFields[`user_${idx}`] = fields;
         tbody.appendChild(tr);
     }
 
     removeUser(idx)
     {
         delete this._users[idx];
-        let editables = this.infoEditableFields[`user_${idx}`];
+        let editables = this.usersEditableFields[`user_${idx}`];
         let first = editables[0];
         let torm = first.html.parentElement;
         torm.parentElement.removeChild(torm);
