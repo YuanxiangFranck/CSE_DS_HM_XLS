@@ -1,6 +1,7 @@
 "use strict";
 import { ClientServerManager }  from "./clientServerManager";
 import { User, Expense, Utils, EditableField , CompanyEnum }  from "./basicClasses";
+import { EditableField }  from "./editableField";
 
 
 const DEFAULT_GROUPS = ["Guide","Location","Logement","Transport", "Misc"];
