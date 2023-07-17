@@ -32,18 +32,55 @@ class FrontPage
         this._byPerson = {};
         this._byGroup = {};
 
-        // Init
-        this.readOnly = true;
-        this._data = content;
-        this.rebuild();
-
         // UI
         this.infoEditableFields = {};
         this.usersEditableFields = {};
         this.expensesEditableFields = {};
-    }
 
-    recompute()
+        // Init
+        this.readOnly = true;
+        this._data = content;
+        this.rebuild();
+    }
+    /**
+     * Used to rebuild page from data
+     */
+    rebuild()
+    {
+        // clear data
+        this._users = {};
+        this._nb_users = 0;
+        this._totalCost = 0;
+        this._totalSub = 0;
+        this._byPerson = {};
+        this._byGroup = {};
+        // users
+        for (let u of Object.values(this._data?.users || {}))
+        {
+            let user = new User(u);
+            if (user.id)
+                this._users[user.id] = user;
+        }
+        if (Object.keys(this._users).length === 0)
+        {
+            this._users[0] = new User({ firstname: "Dassault", name: "Sport", company: CompanyEnum.DA, isSuperUser : true, id: 0});
+        }
+        this.expenses = [];
+        for (let e of this._data?.expenses || [])
+        {
+            if (e)
+                this.expenses.push(new Expense(e));
+        }
+
+        this._data.groups = this._data.groups || DEFAULT_GROUPS;
+        this._data.rules = this._data.rules || DEFAULT_RULES;
+        // compute values
+        this.recompute(false);
+    }
+    /**
+     * Recompute values from data
+     */
+    recompute(updateData=true)
     {
         this._nb_users = 0;
         this._byPerson = {};
@@ -51,11 +88,15 @@ class FrontPage
         this._totalCost = 0;
         this._totalSub = 0;
         let nonSuperUsers = [];
-        this._data.users = {};
-        this._data.expenses = [];
+        if (updateData)
+        {
+            this._data.users = {};
+            this._data.expenses = [];
+        }
         for (const user of Object.values(this._users))
         {
-            this._data.users[user.id] = user.toJson();
+            if (updateData)
+                this._data.users[user.id] = user.toJson();
             if (user.isSuperUser) continue;
             this._byPerson[user.id] = 0;
             this._nb_users++;
@@ -63,7 +104,8 @@ class FrontPage
         }
         for (let exp of this.expenses)
         {
-            this._data.expenses = exp;
+            if (updateData)
+                this._data.expenses = exp;
             let fromUser = this.users[exp.from];
             // person
             if (this._byPerson[exp.from]) // not found means super user
@@ -94,37 +136,7 @@ class FrontPage
         console.log("push", this._data)
     }
 
-    rebuild()
-    {
-        // clear data
-        this._users = {};
-        this._nb_users = 0;
-        this._totalCost = 0;
-        this._totalSub = 0;
-        this._byPerson = {};
-        this._byGroup = {};
-        // users
-        for (let u of Object.values(this._data?.users || {}))
-        {
-            let user = new User(u);
-            if (user.id)
-                this._users[user.id] = user;
-        }
-        if (Object.keys(this._users).length === 0)
-        {
-            this._users[0] = new User({ firstname: "Dassault", name: "Sport", company: CompanyEnum.DA, isSuperUser : true, id: 0});
-        }
-        this.expenses = [];
-        for (let e of this._data?.expenses || [])
-        {
-            if (e)
-                this.expenses.push(new Expense(e));
-        }
 
-        this._data.groups = this._data.groups || DEFAULT_GROUPS;
-        this._data.rules = this._data.rules || DEFAULT_RULES;
-        this.recompute();
-    }
 
     applyRule(group, sum)
     {
@@ -140,23 +152,6 @@ class FrontPage
             sub = Math.min(sub, self.users)
         }
         return sub;
-    }
-
-
-    buildInfo()
-    {
-        for (const [id, path, editable, type] of [
-            ["#info-title", "_data.info.title", true, "text"],
-            ["#info-where", "_data.info.destination", true, "text"],
-            ["#info-type", "_data.info.type", true, "text"],
-            ["#info-start-date", "_data.info.start", true, "date"],
-            ["#info-end-date", "_data.info.end", true, "date"],
-            ["#info-resp", "_data.info.responsible", true, "text"],
-            ["#info-nb-users", "_nb_users", false, "text"]
-        ])
-        {
-            this.infoEditableFields[id] = new EditableField(this.readOnly, id, path, this, editable, type);
-        }
     }
 
     switchToEdit(mode)
@@ -188,6 +183,31 @@ class FrontPage
 
     }
 
+    buildInfo()
+    {
+        for (const [id, path, editable, type] of [
+            ["#info-title", "_data.info.title", true, "text"],
+            ["#info-where", "_data.info.destination", true, "text"],
+            ["#info-type", "_data.info.type", true, "text"],
+            ["#info-start-date", "_data.info.start", true, "date"],
+            ["#info-end-date", "_data.info.end", true, "date"],
+            ["#info-resp", "_data.info.responsible", true, "text"],
+            ["#info-nb-users", "_nb_users", false, "text"]
+        ])
+        {
+            this.infoEditableFields[id] = new EditableField(this.readOnly, id, path, this, editable, type);
+        }
+    }
+
+    addEventListener()
+    {
+        // build event listeners
+        document.getElementById("info-edit-start").addEventListener("click", this.switchToEdit.bind(this, 0));
+        document.getElementById("info-edit-commit").addEventListener("click", this.switchToEdit.bind(this, 1));
+        document.getElementById("info-edit-cancel").addEventListener("click", this.switchToEdit.bind(this, -1));
+        document.getElementById("user-edit-add").addEventListener("click", this.addRowUser.bind(this, undefined));
+    }
+
     buildExpenses()
     {
         // console.log(this.expenses)
@@ -198,7 +218,6 @@ class FrontPage
         Utils.setText("#info-avg", val);
 
     }
-
 
     buildUsers()
     {
@@ -251,19 +270,8 @@ class FrontPage
         let first = editables[0];
         let torm = first.html.parentElement;
         torm.parentElement.removeChild(torm);
-
     }
 
-    addEventListener()
-    {
-        // build event listeners
-        document.getElementById("info-edit-start").addEventListener("click", this.switchToEdit.bind(this, 0));
-        document.getElementById("info-edit-commit").addEventListener("click", this.switchToEdit.bind(this, 1));
-        document.getElementById("info-edit-cancel").addEventListener("click", this.switchToEdit.bind(this, -1));
-        document.getElementById("user-edit-add").addEventListener("click", this.addRowUser.bind(this, undefined));
-
-
-    }
     static async main()
     {
         let manager = new ClientServerManager();
