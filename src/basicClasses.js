@@ -28,7 +28,7 @@ export class User
         else
             id = ++STATIC_USER_COUNT;
         this.id = id;
-        this.toPay = 0;
+        this._toPay = 0;
     }
 
     get fullname()
@@ -38,6 +38,16 @@ export class User
     get shortname()
     {
         return `${this.firstname} ${this.name[0]}.`;
+    }
+    toJson()
+    {
+        let tmp = {};
+        for (let [k,v] of Object.entries(this))
+        {
+            if (k.startsWith("_")) continue;
+            tmp[k] = v;
+        }
+        return tmp;
     }
 }
 

@@ -39,6 +39,7 @@ class FrontPage
 
         // UI
         this.infoEditableFields = {};
+        this.usersEditableFields = {};
     }
 
     recompute()
@@ -49,8 +50,11 @@ class FrontPage
         this._totalCost = 0;
         this._totalSub = 0;
         let nonSuperUsers = [];
+        this._data.users = {};
+        this._data.expenses = [];
         for (const user of Object.values(this._users))
         {
+            this._data.users[user.id] = user.toJson();
             if (user.isSuperUser) continue;
             this._byPerson[user.id] = 0;
             this._nb_users++;
@@ -58,6 +62,7 @@ class FrontPage
         }
         for (let exp of this.expenses)
         {
+            this._data.expenses = exp;
             let fromUser = this.users[exp.from];
             // person
             if (this._byPerson[exp.from]) // not found means super user
@@ -80,10 +85,12 @@ class FrontPage
             this._totalSub += sub;
         }
     }
-    pushData()
+    pushData(compute=true)
     {
-        this.recompute();
+        if (compute)
+            this.recompute();
         this.manager.saveContent(this._data);
+        console.log("push", this._data)
     }
 
     rebuild()
@@ -96,7 +103,7 @@ class FrontPage
         this._byPerson = {};
         this._byGroup = {};
         // users
-        for (let u of this._data?.users || [])
+        for (let u of Object.values(this._data?.users || {}))
         {
             let user = new User(u);
             if (user.id)
@@ -134,30 +141,6 @@ class FrontPage
         return sub;
     }
 
-    addUser(name, push=true)
-    {
-        this.users.push(new User(name));
-        if (push) this.pushData()
-    }
-
-    addUsers(names, push=true)
-    {
-        for (const name of names)
-            this.addUser(name, false);
-        if (push) this.pushData()
-    }
-
-    addExpense(expens, push=true)
-    {
-        this.expenses.push(expens);
-        if (push) this.pushData()
-    }
-    addExpenses(expenses, push=true)
-    {
-        for (const e of expenses)
-            this.addExpense(e, false);
-        if (push) this.pushData();
-    }
 
     buildInfo()
     {
@@ -185,15 +168,20 @@ class FrontPage
         Utils.toggleVisible("#info-edit-start", readOnly);
         // Update info
         this.readOnly = readOnly
+        for (let toLoop of Object.values(this.usersEditableFields))
+        {
+            for (let obj of toLoop)
+                obj.toggle(readOnly, mode==1);
+        }
+        for (let toLoop of Object.values(this.expensesEditableFields))
+        {
+            for (let obj of toLoop)
+                obj.toggle(readOnly, mode==1);
+        }
+
         for (let obj of Object.values(this.infoEditableFields))
         {
-            let toloop;
-            if (obj instanceof EditableField)
-                toloop = [obj];
-            else
-                toloop = obj;
-            for (let elem of toloop)
-                elem.toggle(readOnly, mode==1);
+            obj.toggle(readOnly, mode==1);
         }
         this.pushData();
 
@@ -284,7 +272,7 @@ class FrontPage
         let front = new FrontPage(manager, content);
         console.log(front)
         window.front = front;
-        window.clear = ()=>front.rebuild();
+        /*window.clear = ()=>front.rebuild();
         window.debug = ()=>{
             front.info = {
                 title: "WE Alpi Débutant Juin",
@@ -300,7 +288,7 @@ class FrontPage
                 new Expense(null, "Franck WANG", "Location Matos", 100, "Location", ["bbbbb"]),
             ])
         }
-        front.readOnly = true;
+        */
 
         front.buildInfo();
         front.buildExpenses();
