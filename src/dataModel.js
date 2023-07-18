@@ -1,6 +1,7 @@
 "use strict";
 
-let STATIC_USER_COUNT = 0;
+let STATIC_USER_COUNT = 1;
+let STATIC_EXPENSE_COUNT = 0;
 
 const DEFAULT_GROUPS = ["Guide","Location","Logement","Transport", "Misc"];
 
@@ -44,7 +45,11 @@ export class User
         this.company = input.company || CompanyEnum.DS;
         this.isSuperUser = input.isSuperUser || false;
         let id;
-        if (input.id != null)
+        if (this.isSuperUser)
+        {
+            id = 0;
+        }
+        else if (input.id != null)
         {
             STATIC_USER_COUNT = Math.max(STATIC_USER_COUNT, input.id);
             id = input.id;
@@ -82,12 +87,21 @@ export class Expense
 {
     constructor (input)
     {
-        this.when = input?.when;
-        this.from = input?.from;
-        this.what = input?.what;
-        this.cost = input?.cost;
-        this.group = input?.group;
-        this.target = input?.target;
+        this.when = input?.when || "DD-MM-YYYY";
+        this.from = input?.from || 0;
+        this.what = input?.what || "-";
+        this.cost = input?.cost || 0;
+        this.group = input?.group || DEFAULT_GROUPS[4];
+        this.target = input?.target; // undefined means all
+        let id;
+        if (input.id != null)
+        {
+            STATIC_EXPENSE_COUNT = Math.max(STATIC_EXPENSE_COUNT, input.id);
+            id = input.id;
+        }
+        else
+            id = ++STATIC_EXPENSE_COUNT;
+        this.id = id;
     }
 
 }
@@ -111,11 +125,12 @@ export class Data
             let user = new User(DEFAULT_SUPER_USER)
             this.users[user.id] = user;
         }
-        this.expenses = [];
-        for (let e of input?.expenses || [])
+        this.expenses = {};
+        for (let e of Object.values(input?.expenses || {}))
         {
-            if (!e) continue;
-            this.expenses.push(new Expense(e));
+            let exp = new Expense(e);
+            if (!exp || exp.id == null) continue;
+            this.expenses[exp.id] = exp;
         }
         this.groups = input?.groups || DEFAULT_GROUPS;
         this.rules = input?.rules || DEFAULT_RULES;

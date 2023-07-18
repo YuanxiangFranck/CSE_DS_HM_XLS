@@ -79,13 +79,9 @@ export class FrontPage
             this._nb_users++;
             nonSuperUsers.push(user.id);
         }
-        for (let exp of this._data.expenses)
+        for (let exp of Object.values(this._data.expenses))
         {
             // person
-            if (this._byPerson[exp.from]) // not found means super user
-            {
-                this._byPerson[exp.from] += this.expenses.cost;
-            }
             let targetUsersIds = exp.target || nonSuperUsers;
             for (let userId of targetUsersIds)
             {
@@ -132,8 +128,9 @@ export class FrontPage
         // update nav bag
         Utils.toggleVisible("#info-edit-commit", !readOnly);
         Utils.toggleVisible("#info-edit-cancel", !readOnly);
-        Utils.toggleVisible("#user-edit-add", !readOnly);
         Utils.toggleVisible("#info-edit-start", readOnly);
+        Utils.toggleVisible("#user-edit-add", !readOnly);
+        Utils.toggleVisible("#expenses-edit-add", !readOnly);
         // Update info
         this.state = mode;
         if (!readOnly)
@@ -169,6 +166,17 @@ export class FrontPage
 
     }
 
+
+    addEventListener()
+    {
+        // build event listeners
+        document.getElementById("info-edit-start").addEventListener("click", this.switchToEdit.bind(this, EditionStateEum.StartEdit));
+        document.getElementById("info-edit-commit").addEventListener("click", this.switchToEdit.bind(this, EditionStateEum.Commit));
+        document.getElementById("info-edit-cancel").addEventListener("click", this.switchToEdit.bind(this, EditionStateEum.Abort));
+        document.getElementById("user-edit-add").addEventListener("click", this.addRowUser.bind(this, undefined));
+        document.getElementById("expenses-edit-add").addEventListener("click", this.addRowExpense.bind(this, undefined));
+    }
+
     buildInfo()
     {
         for (const [id, path, editable, type] of [
@@ -185,18 +193,8 @@ export class FrontPage
         }
     }
 
-    addEventListener()
+    buildSummary()
     {
-        // build event listeners
-        document.getElementById("info-edit-start").addEventListener("click", this.switchToEdit.bind(this, EditionStateEum.StartEdit));
-        document.getElementById("info-edit-commit").addEventListener("click", this.switchToEdit.bind(this, EditionStateEum.Commit));
-        document.getElementById("info-edit-cancel").addEventListener("click", this.switchToEdit.bind(this, EditionStateEum.Abort));
-        document.getElementById("user-edit-add").addEventListener("click", this.addRowUser.bind(this, undefined));
-    }
-
-    buildExpenses()
-    {
-        // console.log(this.expenses)
         Utils.setText("#info-spent", this._totalCost);
         Utils.setText("#info-sub", this._totalCost);
         let val = this._nb_users ? (this._totalCost - this._totalSub) / this._nb_users : 0;
@@ -262,6 +260,62 @@ export class FrontPage
         torm.parentElement.removeChild(torm);
     }
 
+    buildExpenses()
+    {
+        let tbody = document.querySelector("#expenses-table tbody")
+        tbody.innerHTML = "";
+        for (let idx of Object.keys(this._data.expenses))
+        {
+            this.addRowExpense(idx);
+        }
+    }
+    addRowExpense(idx)
+    {
+
+        let exp;
+        if (idx == null)
+        {
+            exp = new Expense({});
+            idx = exp.id;
+            this._data.expenses[idx] = exp;
+        }
+        else
+        {
+            exp = this._data.expenses[idx];
+        }
+        let tbody = document.querySelector("#expenses-table tbody");
+        let tr = document.createElement("tr");
+        let fields = [];
+        // action
+        for (let [key, type, data] of [
+            ["id", "icon", {
+                iconName:"ti ti-trash" ,
+                onClick : ()=>this.removeExpense(idx),
+                canFail: true
+            }],
+            ["when", "date", {canFail: true}],
+            ["what", "text", {canFail: true}],
+            ["cost", "text", {canFail: true}],
+            ["group", "number", { items : [], canFail: true}],
+            ["from", "combo", { items : [], canFail: true}],
+            ["target",  "combo", { items: [], canFail: true}],
+        ])
+        {
+            let td = document.createElement("td");
+            td.className = "boder-bottom-0";
+            let field = new EditableField(this.readOnly, td, `_data.expenses.${idx}.${key}`, this, true, type, data);
+            tr.appendChild(td);
+            fields.push(field);
+        }
+        this.expensesEditableFields[idx] = fields;
+        tbody.appendChild(tr);
+    
+    }
+    removeExpense(idx)
+    {
+
+    }
+
     static async main()
     {
         let manager = new ClientServerManager();
@@ -271,8 +325,9 @@ export class FrontPage
         window.front = front;
 
         front.buildInfo();
-        front.buildExpenses();
+        front.buildSummary();
         front.buildUsers();
+        front.buildExpenses();
         front.addEventListener();
         front.switchToEdit(EditionStateEum.Commit, false);
         // front.buildSummary();
