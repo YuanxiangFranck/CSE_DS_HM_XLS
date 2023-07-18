@@ -234,7 +234,7 @@ export class FrontPage
 
     removeUser(idx)
     {
-        delete this._users[idx];
+        delete this._data.users[idx];
         let editables = this.usersEditableFields[`user_${idx}`];
         let first = editables[0];
         let torm = first.html.parentElement;
