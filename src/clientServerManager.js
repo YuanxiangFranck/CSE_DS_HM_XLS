@@ -31,4 +31,9 @@ export class ClientServerManager
         console.log("push", content);
         localStorage.setItem("ce_dassault_sport_compte_local", JSON.stringify(content));
     }
+
+    async clear()
+    {
+        localStorage.removeItem("ce_dassault_sport_compte_local");
+    }
 };

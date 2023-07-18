@@ -204,7 +204,7 @@ export class FrontPage
         {
             let user = new User({});
             idx = user.id;
-            this._data._users[idx] =user;
+            this._data.users[idx] =user;
         }
         let tbody = document.querySelector("#users-table tbody");
         let tr = document.createElement("tr");

@@ -17,7 +17,7 @@ export const CompanyEnum = {
     DAExt: 3
 };
 const DEFAULT_SUPER_USER = {
-    firstname: "Dassault", name: "Sport",
+    firstname: "Sport", name: "Dassault",
      company: CompanyEnum.DA, isSuperUser : true
 };
 export class Info
@@ -27,8 +27,8 @@ export class Info
         this.title = input?.title || "-Nom de la sortie-";
         this.destination = input?.destination || "X";
         this.type = input?.type || "X";
-        this.start = input?.type || "X";
-        this.end = input?.type || "X";
+        this.start = input?.start || "DD-MM-YYYY";
+        this.end = input?.end || "DD-MM-YYYY";
         this.responsible = input?.responsible || "X";
     }
 }
