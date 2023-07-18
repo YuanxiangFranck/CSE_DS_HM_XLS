@@ -185,7 +185,6 @@ export class FrontPage
         let val = this._nb_users ? (this._totalCost - this._totalSub) / this._nb_users : 0;
         val = Math.round(val*100) / 100;
         Utils.setText("#info-avg", val);
-
     }
 
     buildUsers()
@@ -200,11 +199,16 @@ export class FrontPage
 
     addRowUser(idx)
     {
+        let user;
         if (idx == null)
         {
-            let user = new User({});
+            user = new User({});
             idx = user.id;
             this._data.users[idx] =user;
+        }
+        else
+        {
+            user = this._data.users[idx];
         }
         let tbody = document.querySelector("#users-table tbody");
         let tr = document.createElement("tr");
@@ -224,7 +228,7 @@ export class FrontPage
         {
             let td = document.createElement("td");
             td.className = "boder-bottom-0";
-            let field = new EditableField(this.readOnly, td, `_data.users.${idx}.${key}`, this, editable, type, data);
+            let field = new EditableField(this.readOnly, td, `_data.users.${idx}.${key}`, this, editable && !user.isSuperUser, type, data);
             tr.appendChild(td);
             fields.push(field);
         }

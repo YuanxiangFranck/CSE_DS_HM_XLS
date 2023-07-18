@@ -11,14 +11,14 @@ const DEFAULT_RULES = {
     "Logement" : { ratio: 0.5,  maxi_pp: 50 }
 };
 export const CompanyEnum = {
-    DS: 0,
-    DSExt: 1,
-    DA: 2,
-    DAExt: 3
+    DS: "DS",
+    DSExt: "DS (Ext)",
+    DA: "DA",
+    DAExt: "DA (Ext)"
 };
 const DEFAULT_SUPER_USER = {
     firstname: "Sport", name: "Dassault",
-     company: CompanyEnum.DA, isSuperUser : true
+    company: CompanyEnum.DA, isSuperUser : true
 };
 export class Info
 {
