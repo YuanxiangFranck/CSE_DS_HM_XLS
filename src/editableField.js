@@ -1,4 +1,4 @@
-import { Utils }  from "./basicClasses";
+import { Utils }  from "./utils";
 
 export class EditableField
 {
