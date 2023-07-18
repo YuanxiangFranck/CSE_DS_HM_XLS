@@ -61,12 +61,8 @@ export class EditableField
                 {
                     this.data.onPreCommit();
                 }
-                let obj = this.html.querySelector(`input`);
-                if (obj && obj.value && obj.value !== "")
-                {
-                    content = obj.value;
-                    this.setAttr(content);
-                }
+                let tmp = this._setValueFromEdit();
+                if (tmp != null) content = tmp;
             }
             this._buildReadOnly(content)
         }
@@ -93,6 +89,18 @@ export class EditableField
             </a>`;
             out.addEventListener("click", this.data.onClick);
         }
+        else if (this.type === "combo")
+        {
+            out = document.createElement("select");
+            for (let [key, color] of this.data.items)
+            {
+                let option = document.createElement("option");
+                option.setAttribute("value", key);
+                option.innerText = key;
+                out.appendChild(option);
+            }
+            out.value = content;
+        }
         else
         {
 
@@ -107,6 +115,28 @@ export class EditableField
         }
         this.html.innerHTML = ""; // lazy empty
         this.html.appendChild(out);
+    }
+
+    _setValueFromEdit()
+    {
+        let content;
+        let obj;
+        if (this.type === "combo")
+        {
+            obj = this.html.querySelector(`select`);
+        }
+        else
+        {
+            obj = this.html.querySelector(`input`);
+        }
+        if (obj && obj.value && obj.value !== "")
+        {
+            content = obj.value;
+        }
+        if (content != null)
+            this.setAttr(content);
+        return content;
+
     }
 
 }

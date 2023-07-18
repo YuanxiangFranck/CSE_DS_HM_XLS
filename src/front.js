@@ -1,6 +1,6 @@
 import { ClientServerManager }  from "./clientServerManager";
 import { EditableField }  from "./editableField";
-import { Data, Info, User, Expense, CompanyEnum }  from "./dataModel";
+import { Data, Info, User, Expense, CompanyEnum , V}  from "./dataModel";
 import { Utils }  from "./utils";
 
 "use strict";
@@ -14,6 +14,14 @@ const EditionStateEum = {
     Commit: 0x010,
     Abort: 0x110
 };
+
+const CompanyEnumColor = [
+    [CompanyEnum.DS, "red"],
+    [CompanyEnum.DSExt, "red"],
+    [CompanyEnum.DA, "red"],
+    [CompanyEnum.DAExt, "red"]
+];
+
 export class FrontPage
 {
     constructor(clientServerManager, content)
@@ -35,7 +43,16 @@ export class FrontPage
         // Init
         this.state = EditionModeEnum.ReadOnly;
         // for import export
-        this._data = new Data(content);;
+        try
+        {
+            this._data = new Data(content);
+        }
+        catch(e)
+        {
+            console.error(e);
+            console.warn("Issues in the data form cache.... clear data for now")
+            this._data = new Data({});
+        }
         // compute values
         this.preProcessing();
     }
@@ -222,7 +239,7 @@ export class FrontPage
             }],
             ["name", true, "text", {canFail: true}],
             ["firstname", true, "text", {canFail: true}],
-            ["company", true, "combo", { items : CompanyEnum, canFail: true}],
+            ["company", true, "combo", { items : CompanyEnumColor, canFail: true}],
             ["toPay", false, "text", {canFail: true}],
         ])
         {
@@ -252,23 +269,6 @@ export class FrontPage
         let front = new FrontPage(manager, content);
         console.log(front)
         window.front = front;
-        /*window.clear = ()=>front.rebuild();
-        window.debug = ()=>{
-            front.info = {
-                title: "WE Alpi Débutant Juin",
-                type: "Alpinisme",
-                start: "9/07/2023",
-                end: "11/07/2023",
-                responsible : "Franck WANG"
-            }
-            front.addUsers(["__super__CE", "aaaaa", "bbbbb", "ccccccccc", "Franck WANG"])
-            front.users[0]._isSuper
-            front.addExpenses([
-                new Expense(null, "CE",          "Zébulon", 100, "Guide", null),
-                new Expense(null, "Franck WANG", "Location Matos", 100, "Location", ["bbbbb"]),
-            ])
-        }
-        */
 
         front.buildInfo();
         front.buildExpenses();
