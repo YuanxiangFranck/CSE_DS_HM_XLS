@@ -75,7 +75,14 @@ export class EditableField
 
     _buildReadOnly(content)
     {
-        Utils.setText(this.html, content);
+        let innerhtml = content;
+        if (this.type === "combo")
+        {
+            innerhtml = `<div class="d-flex align-items-center gap-2">
+                            <span class="badge ${this.data.items[content]} rounded-3 fw-semibold">${content}</span>
+                        </div>`
+        }
+        Utils.setText(this.html, innerhtml);
     }
 
     _buildEditable(content)
@@ -92,7 +99,7 @@ export class EditableField
         else if (this.type === "combo")
         {
             out = document.createElement("select");
-            for (let [key, color] of this.data.items)
+            for (let key of Object.keys(this.data.items))
             {
                 let option = document.createElement("option");
                 option.setAttribute("value", key);

@@ -15,12 +15,12 @@ const EditionStateEum = {
     Abort: 0x110
 };
 
-const CompanyEnumColor = [
-    [CompanyEnum.DS, "red"],
-    [CompanyEnum.DSExt, "red"],
-    [CompanyEnum.DA, "red"],
-    [CompanyEnum.DAExt, "red"]
-];
+const CompanyEnumColor = Object.fromEntries([
+    [CompanyEnum.DS, "bg-primary"],
+    [CompanyEnum.DSExt, "bg-primary"],
+    [CompanyEnum.DA, "bg-secondary"],
+    [CompanyEnum.DAExt, "bg-secondary"]
+]);
 
 export class FrontPage
 {
