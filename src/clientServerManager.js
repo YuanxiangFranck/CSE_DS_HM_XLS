@@ -29,7 +29,7 @@ export class ClientServerManager
     {
         if (this._useServer) throw new Error("To implement");
         console.log("push", content);
-        localStorage.setItem("ce_dassault_sport_compte_local", JSON.stringify(content));
+        localStorage.setItem("ce_dassault_sport_compte_local", content.toJson());
     }
 
     async clear()

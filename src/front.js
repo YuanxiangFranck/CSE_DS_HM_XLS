@@ -89,7 +89,7 @@ export class FrontPage
         {
             // person
             let targetUsersIds = exp.target;
-            if (targetUsersIds == null || targetUsersIds === "undefined"  ) targetUsersIds = nonSuperUsers;
+            if (targetUsersIds === "All"  ) targetUsersIds = nonSuperUsers;
             for (let userId of targetUsersIds)
             {
                 this._data.users[userId]._toPay -= exp.cost / this._nb_users;
@@ -114,7 +114,7 @@ export class FrontPage
     applyRule(group, sum)
     {
         const rule = this._data.rules[group];
-        if (rule == null) return sum;
+        if (rule == null) return 0;
         let sub = 0;
         if (rule.ratio)
         {
@@ -168,6 +168,7 @@ export class FrontPage
         {
             obj.toggle(readOnly, isCommit);
         }
+        this.buildSummary();
         if (readOnly && push)
             this.pushData(false);
 
@@ -203,7 +204,7 @@ export class FrontPage
     buildSummary()
     {
         Utils.setText("#info-spent", this._totalCost);
-        Utils.setText("#info-sub", this._totalCost);
+        Utils.setText("#info-sub", this._totalSub);
         let val = this._nb_users ? (this._totalCost - this._totalSub) / this._nb_users : 0;
         val = Math.round(val*100) / 100;
         Utils.setText("#info-avg", val);
@@ -294,7 +295,7 @@ export class FrontPage
         let tr = document.createElement("tr");
         let fields = [];
         let usersFrom = {};
-        let usersTo= { undefined : "badge bg-primary"};
+        let usersTo= { "All" : "badge bg-primary"};
         for (let user of Object.values(this._data.users))
         {
             usersFrom[user.id] = null; // mandatory
@@ -319,7 +320,7 @@ export class FrontPage
             ["target",  "combo", {
                 items: usersTo, canFail: true,
                 multipleChoice: true,
-                displayCb: (idx)=>idx  == null || idx == "undefined" ? "Tous" : this._data.users[idx].shortname
+                displayCb: (idx)=>idx == "All" ? "Tous" : this._data.users[idx].shortname
             }],
         ])
         {
@@ -352,6 +353,5 @@ export class FrontPage
         front.buildExpenses();
         front.addEventListener();
         front.switchToEdit(EditionStateEum.Commit, false);
-        // front.buildSummary();
     }
 }

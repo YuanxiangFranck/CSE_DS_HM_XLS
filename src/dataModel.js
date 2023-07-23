@@ -29,10 +29,27 @@ const DEFAULT_SUPER_USER = {
     firstname: "Dassault", name: "Sport",
     company: CompanyEnum.DA, isSuperUser : true
 };
-export class Info
+
+class BaseJson
+{
+    constructor(){}
+    toJson()
+    {
+        let tmp = {};
+        for (let [k,v] of Object.entries(this))
+        {
+            if (k.startsWith("_")) continue;
+            tmp[k] = v;
+        }
+        return tmp;
+    }
+}
+
+export class Info extends BaseJson
 {
     constructor(input)
     {
+        super();
         this.title = input?.title || "-Nom de la sortie-";
         this.destination = input?.destination || "X";
         this.type = input?.type || "X";
@@ -42,10 +59,11 @@ export class Info
     }
 }
 
-export class User
+export class User extends BaseJson
 {
     constructor (input)
     {
+        super();
         if (typeof input == "string")
         {
             input = JSON.parse(input);
@@ -79,29 +97,21 @@ export class User
     {
         return `${this.firstname} ${this.name[0]}.`;
     }
-    toJson()
-    {
-        let tmp = {};
-        for (let [k,v] of Object.entries(this))
-        {
-            if (k.startsWith("_")) continue;
-            tmp[k] = v;
-        }
-        return tmp;
-    }
 }
 
-export class Expense
+export class Expense extends BaseJson
 {
     constructor (input)
     {
+        super();
         this.when = input?.when || "DD-MM-YYYY";
         this.from = input?.from || 0;
         this.what = input?.what || "-";
         this.cost = input?.cost || 0;
         this.group = input?.group || GroupsEnum.Misc;
-        this.target = input?.target; // undefined means all
+        this.target = input?.target || "All"; // undefined means all
         let id;
+        this._sub = 0;
         if (input.id != null)
         {
             STATIC_EXPENSE_COUNT = Math.max(STATIC_EXPENSE_COUNT, input.id);
@@ -114,10 +124,11 @@ export class Expense
 
 }
 
-export class Data
+export class Data extends BaseJson
 {
     constructor(input)
     {
+        super();
         this.info = new Info(input?.info);
         this.users = {};
         let hasSuper = false;
@@ -143,9 +154,9 @@ export class Data
         this.groups = input?.groups || DEFAULT_GROUPS;
         this.rules = input?.rules || DEFAULT_RULES;
     }
-    // Observation pattern
+
     toJson()
     {
-        return "{}";
+        return JSON.stringify(this);
     }
 }
