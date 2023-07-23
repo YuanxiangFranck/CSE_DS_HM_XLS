@@ -31,6 +31,10 @@ export class EditableField
 
     setAttr(content)
     {
+        if (this.type === "number")
+        {
+            content = parseFloat(content)
+        }
         try
         {
             Utils.setAttr(this.front, this.path, content);
@@ -52,7 +56,16 @@ export class EditableField
         // allow force redraw
         // if (targetReadOnly == this.readOnly) return; // nothing to do
         let content = this.getAttr();
-        if (content == null) content = "...";
+        let displayed = content;
+        if (this.data?.displayCb)
+        {
+            displayed = this.data.displayCb(content);
+        }
+        else if (content == null)
+        {
+            content = "...";
+            displayed = content;
+        }
         if (targetReadOnly)
         {
             if (commit && this.editable)
@@ -64,28 +77,35 @@ export class EditableField
                 let tmp = this._setValueFromEdit();
                 if (tmp != null) content = tmp;
             }
-            this._buildReadOnly(content)
+            this._buildReadOnly(content, displayed)
         }
         else
         {
-            this._buildEditable(content);
+            this._buildEditable(content, displayed);
         }
         this.readOnly = targetReadOnly;
     }
 
-    _buildReadOnly(content)
+    _buildReadOnly(content, displayed)
     {
-        let innerhtml = content;
+        let innerhtml = displayed;
         if (this.type === "combo")
         {
-            innerhtml = `<div class="d-flex align-items-center gap-2">
-                            <span class="badge ${this.data.items[content]} rounded-3 fw-semibold">${content}</span>
-                        </div>`
+            let cssClasses = this.data.items[content];
+            if (cssClasses != null)
+            {
+
+                innerhtml = `<div class="d-flex align-items-center gap-2">
+                                <div class="badge ${cssClasses} rounded-3 fw-semibold">
+                                    <span class="text-${cssClasses}">${displayed}</span>
+                                </div>
+                            </div>`
+            }
         }
         Utils.setText(this.html, innerhtml);
     }
 
-    _buildEditable(content)
+    _buildEditable(content, displayed)
     {
         let out;
         if (this.type === "icon")
@@ -103,7 +123,9 @@ export class EditableField
             {
                 let option = document.createElement("option");
                 option.setAttribute("value", key);
-                option.innerText = key;
+                let displayed = key;
+                if (this.data.displayCb) displayed = this.data.displayCb(key);
+                option.innerText = displayed;
                 out.appendChild(option);
             }
             out.value = content;

@@ -1,6 +1,6 @@
 import { ClientServerManager }  from "./clientServerManager";
 import { EditableField }  from "./editableField";
-import { Data, Info, User, Expense, CompanyEnum , V}  from "./dataModel";
+import { Data, User, Expense, CompanyEnum , GroupsEnum}  from "./dataModel";
 import { Utils }  from "./utils";
 
 "use strict";
@@ -20,6 +20,14 @@ const CompanyEnumColor = Object.fromEntries([
     [CompanyEnum.DSExt, "bg-primary"],
     [CompanyEnum.DA, "bg-secondary"],
     [CompanyEnum.DAExt, "bg-secondary"]
+]);
+
+const GroupsEnumColor = Object.fromEntries([
+    [GroupsEnum.Guide, "bg-primary"],
+    [GroupsEnum.Location, "bg-secondary"],
+    [GroupsEnum.Transport, "bg-success"],
+    [GroupsEnum.Logement, "bg-warning"],
+    [GroupsEnum.Misc, "bg-dark"]
 ]);
 
 export class FrontPage
@@ -66,7 +74,6 @@ export class FrontPage
     preProcessing()
     {
         this._nb_users = 0;
-        this._byPerson = {};
         this._byGroup = {};
         this._totalCost = 0;
         this._totalSub = 0;
@@ -75,17 +82,17 @@ export class FrontPage
         for (const user of Object.values(this._data.users))
         {
             if (user.isSuperUser) continue;
-            this._byPerson[user.id] = 0;
             this._nb_users++;
             nonSuperUsers.push(user.id);
         }
         for (let exp of Object.values(this._data.expenses))
         {
             // person
-            let targetUsersIds = exp.target || nonSuperUsers;
+            let targetUsersIds = exp.target;
+            if (targetUsersIds == null || targetUsersIds === "undefined"  ) targetUsersIds = nonSuperUsers;
             for (let userId of targetUsersIds)
             {
-                this._byPerson[userId] -= exp.cost / this._nb_users;
+                this._data.users[userId]._toPay -= exp.cost / this._nb_users;
             }
             // group
             if (this._byGroup[exp.group] == null)
@@ -235,8 +242,8 @@ export class FrontPage
                 onClick : ()=>this.removeUser(idx),
                 canFail: true
             }],
-            ["name", true, "text", {canFail: true}],
             ["firstname", true, "text", {canFail: true}],
+            ["name", true, "text", {canFail: true}],
             ["company", true, "combo", { items : CompanyEnumColor, canFail: true}],
             ["toPay", false, "text", {canFail: true}],
         ])
@@ -286,6 +293,14 @@ export class FrontPage
         let tbody = document.querySelector("#expenses-table tbody");
         let tr = document.createElement("tr");
         let fields = [];
+        let usersFrom = {};
+        let usersTo= { undefined : "badge bg-primary"};
+        for (let user of Object.values(this._data.users))
+        {
+            usersFrom[user.id] = null; // mandatory
+            if (user.isSuperUser) continue;
+            usersTo[user.id] = null; // mandatory
+        }
         // action
         for (let [key, type, data] of [
             ["id", "icon", {
@@ -295,10 +310,17 @@ export class FrontPage
             }],
             ["when", "date", {canFail: true}],
             ["what", "text", {canFail: true}],
-            ["cost", "text", {canFail: true}],
-            ["group", "number", { items : [], canFail: true}],
-            ["from", "combo", { items : [], canFail: true}],
-            ["target",  "combo", { items: [], canFail: true}],
+            ["cost", "number", {canFail: true}],
+            ["group", "combo", { items : GroupsEnumColor, canFail: true}],
+            ["from", "combo", {
+                items : usersFrom, canFail: true,
+                displayCb: (idx)=>this._data.users[idx].fullname
+            }],
+            ["target",  "combo", {
+                items: usersTo, canFail: true,
+                multipleChoice: true,
+                displayCb: (idx)=>idx  == null || idx == "undefined" ? "Tous" : this._data.users[idx].shortname
+            }],
         ])
         {
             let td = document.createElement("td");

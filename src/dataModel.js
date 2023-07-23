@@ -3,7 +3,15 @@
 let STATIC_USER_COUNT = 1;
 let STATIC_EXPENSE_COUNT = 0;
 
-const DEFAULT_GROUPS = ["Guide","Location","Logement","Transport", "Misc"];
+export const GroupsEnum = {
+    Guide: "Guide",
+    Location: "Location",
+    Logement: "Logement",
+    Transport: "Transport",
+    Misc: "Misc"
+};
+
+const DEFAULT_GROUPS = Object.values(GroupsEnum);
 
 const DEFAULT_RULES = {
     "Guide" : { ratio: 0.6 },
@@ -18,7 +26,7 @@ export const CompanyEnum = {
     DAExt: "DA (Ext)"
 };
 const DEFAULT_SUPER_USER = {
-    firstname: "Sport", name: "Dassault",
+    firstname: "Dassault", name: "Sport",
     company: CompanyEnum.DA, isSuperUser : true
 };
 export class Info
@@ -91,7 +99,7 @@ export class Expense
         this.from = input?.from || 0;
         this.what = input?.what || "-";
         this.cost = input?.cost || 0;
-        this.group = input?.group || DEFAULT_GROUPS[4];
+        this.group = input?.group || GroupsEnum.Misc;
         this.target = input?.target; // undefined means all
         let id;
         if (input.id != null)
