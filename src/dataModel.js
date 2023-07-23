@@ -84,8 +84,8 @@ export class User extends BaseJson
             id = ++STATIC_USER_COUNT;
 
         this.id = id;
-        this.name = input.name || `Name_${this.id}`;
-        this.firstname = input.firstname || `User_${this.id}`;
+        this.name = input.name || `${this.id}`;
+        this.firstname = input.firstname || `User`;
         this._toPay = 0;
     }
 
@@ -96,6 +96,10 @@ export class User extends BaseJson
     get shortname()
     {
         return `${this.firstname} ${this.name[0]}.`;
+    }
+    get alias()
+    {
+        return `${this.firstname[0]}${this.name[0]}`;
     }
 }
 

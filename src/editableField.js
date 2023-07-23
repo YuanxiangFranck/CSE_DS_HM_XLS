@@ -75,7 +75,12 @@ export class EditableField
                     this.data.onPreCommit();
                 }
                 let tmp = this._setValueFromEdit();
-                if (tmp != null) content = tmp;
+                if (tmp != null)
+                {
+                    content = tmp;
+                    displayed = content;
+                    if (this.data.displayCb) displayed = this.data.displayCb(content);
+                }
             }
             this._buildReadOnly(content, displayed)
         }
@@ -91,15 +96,15 @@ export class EditableField
         let innerhtml = displayed;
         if (this.type === "combo")
         {
-            let cssClasses = this.data.items[content];
+            let cssClasses = this.data.items[displayed];
             if (cssClasses != null)
             {
 
                 innerhtml = `<div class="d-flex align-items-center gap-2">
-                                <div class="badge ${cssClasses} rounded-3 fw-semibold">
-                                    <span class="text-${cssClasses}">${displayed}</span>
-                                </div>
-                            </div>`
+                <div class="badge ${cssClasses} rounded-3 fw-semibold">
+                <span class="text-${cssClasses}">${displayed}</span>
+                </div>
+                </div>`
             }
         }
         Utils.setText(this.html, innerhtml);
@@ -119,6 +124,10 @@ export class EditableField
         else if (this.type === "combo")
         {
             out = document.createElement("select");
+            if (this.data.multiple)
+                out.setAttribute("multiple", "");
+            // need to be sed before changing options
+            out.value = content;
             for (let key of Object.keys(this.data.items))
             {
                 let option = document.createElement("option");
@@ -127,8 +136,12 @@ export class EditableField
                 if (this.data.displayCb) displayed = this.data.displayCb(key);
                 option.innerText = displayed;
                 out.appendChild(option);
+                if (content?.includes(key))
+                {
+                    // option.setAttribute("selected", "");
+                    option.selected = true;
+                }
             }
-            out.value = content;
         }
         else
         {
@@ -153,14 +166,30 @@ export class EditableField
         if (this.type === "combo")
         {
             obj = this.html.querySelector(`select`);
+            if (obj)
+            {
+                if (this.data.multiple)
+                {
+                    content = [];
+                    for (let opt of obj.options)
+                    {
+                        if (opt.selected)
+                        {
+                            content.push(opt.value);
+                        }
+                    }
+                }
+                else
+                {
+                    content = obj.value;
+                }
+            }
         }
         else
         {
             obj = this.html.querySelector(`input`);
-        }
-        if (obj && obj.value && obj.value !== "")
-        {
-            content = obj.value;
+            if (obj)
+                content = obj.value;
         }
         if (content != null)
             this.setAttr(content);

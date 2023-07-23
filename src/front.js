@@ -89,7 +89,7 @@ export class FrontPage
         {
             // person
             let targetUsersIds = exp.target;
-            if (targetUsersIds === "All"  ) targetUsersIds = nonSuperUsers;
+            if (targetUsersIds.includes("All")) targetUsersIds = nonSuperUsers;
             for (let userId of targetUsersIds)
             {
                 this._data.users[userId]._toPay -= exp.cost / this._nb_users;
@@ -319,8 +319,15 @@ export class FrontPage
             }],
             ["target",  "combo", {
                 items: usersTo, canFail: true,
-                multipleChoice: true,
-                displayCb: (idx)=>idx == "All" ? "Tous" : this._data.users[idx].shortname
+                multiple: true,
+                displayCb: (idx)=>{
+                    if (idx === "All" || idx?.includes("All")) return "Tous";
+                    if (Array.isArray(idx))
+                    {
+                        return idx.map(x=>this._data.users[x].alias).join(", ")
+                    }
+                    return this._data.users[idx].alias;
+                }
             }],
         ])
         {
