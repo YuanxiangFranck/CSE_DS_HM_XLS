@@ -84,22 +84,23 @@ export class FrontPage
             if (user.isSuperUser) continue;
             this._nb_users++;
             nonSuperUsers.push(user.id);
+            user._toPay = 0;
         }
         for (let exp of Object.values(this._data.expenses))
         {
             // person
             let targetUsersIds = exp.target;
+            let sub = this.applyRule(exp.group, exp.cost);
             if (targetUsersIds.includes("All")) targetUsersIds = nonSuperUsers;
             for (let userId of targetUsersIds)
             {
-                this._data.users[userId]._toPay -= exp.cost / this._nb_users;
+                this._data.users[userId]._toPay -= (exp.cost - sub) / targetUsersIds.length;
             }
             // group
             if (this._byGroup[exp.group] == null)
                 this._byGroup[exp.group] = { cost: 0, sub: 0};
             this._byGroup[exp.group].cost += exp.cost;
             this._totalCost += exp.cost;
-            let sub = this.applyRule(exp.group, exp.cost);
             this._byGroup[exp.group].cost += sub;
             this._totalSub += sub;
         }
@@ -246,7 +247,7 @@ export class FrontPage
             ["firstname", true, "text", {canFail: true}],
             ["name", true, "text", {canFail: true}],
             ["company", true, "combo", { items : CompanyEnumColor, canFail: true}],
-            ["toPay", false, "text", {canFail: true}],
+            ["_toPay", false, "text", {canFail: true}],
         ])
         {
             let td = document.createElement("td");
