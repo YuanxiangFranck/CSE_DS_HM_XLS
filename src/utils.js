@@ -52,4 +52,10 @@ export class Utils
         return undefined;
     }
 
+    static toMoney(num)
+    {
+        let tmp = Math.round(num*100) / 100;
+        return `${tmp} €`;
+    }
+
 }

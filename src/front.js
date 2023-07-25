@@ -153,18 +153,22 @@ export class FrontPage
                 this._data = this._dataOld;
             this._dataOld = undefined;
         }
-        for (let toLoop of Object.values(this.usersEditableFields))
+        for (let toLoop of Object.values(this.expensesEditableFields))
         {
             for (let obj of toLoop)
                 obj.toggle(readOnly, isCommit);
         }
-        for (let toLoop of Object.values(this.expensesEditableFields))
+        for (let toLoop of Object.values(this.usersEditableFields))
         {
             for (let obj of toLoop)
                 obj.toggle(readOnly, isCommit);
         }
         if (readOnly)
             this.preProcessing();
+        for (let toLoop of Object.values(this.usersEditableFields))
+        {
+            toLoop[4].toggle(readOnly)
+        }
         for (let obj of Object.values(this.infoEditableFields))
         {
             obj.toggle(readOnly, isCommit);
@@ -247,7 +251,7 @@ export class FrontPage
             ["firstname", true, "text", {canFail: true}],
             ["name", true, "text", {canFail: true}],
             ["company", true, "combo", { items : CompanyEnumColor, canFail: true}],
-            ["_toPay", false, "text", {canFail: true}],
+            ["_toPay", false, "number", {canFail: true, displayCb: Utils.toMoney}],
         ])
         {
             let td = document.createElement("td");
@@ -312,7 +316,7 @@ export class FrontPage
             }],
             ["when", "date", {canFail: true}],
             ["what", "text", {canFail: true}],
-            ["cost", "number", {canFail: true}],
+            ["cost", "number", {canFail: true, displayCb: Utils.toMoney}],
             ["group", "combo", { items : GroupsEnumColor, canFail: true}],
             ["from", "combo", {
                 items : usersFrom, canFail: true,

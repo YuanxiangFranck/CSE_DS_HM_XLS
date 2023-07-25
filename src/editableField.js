@@ -136,10 +136,13 @@ export class EditableField
                 if (this.data.displayCb) displayed = this.data.displayCb(key);
                 option.innerText = displayed;
                 out.appendChild(option);
-                if (Array.isArray(content) && content.includes(key))
+                if (this.data.multiple)
                 {
-                    // option.setAttribute("selected", "");
-                    option.selected = true;
+                    if (Array.isArray(content) && content.includes(key))
+                    {
+                        // option.setAttribute("selected", "");
+                        option.selected = true;
+                    }
                 }
             }
         }
