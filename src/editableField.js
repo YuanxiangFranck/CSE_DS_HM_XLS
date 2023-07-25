@@ -79,7 +79,7 @@ export class EditableField
                 {
                     content = tmp;
                     displayed = content;
-                    if (this.data.displayCb) displayed = this.data.displayCb(content);
+                    if (this?.data?.displayCb) displayed = this.data.displayCb(content);
                 }
             }
             this._buildReadOnly(content, displayed)
@@ -136,7 +136,7 @@ export class EditableField
                 if (this.data.displayCb) displayed = this.data.displayCb(key);
                 option.innerText = displayed;
                 out.appendChild(option);
-                if (content?.includes(key))
+                if (Array.isArray(content) && content.includes(key))
                 {
                     // option.setAttribute("selected", "");
                     option.selected = true;
@@ -188,7 +188,7 @@ export class EditableField
         else
         {
             obj = this.html.querySelector(`input`);
-            if (obj)
+            if (obj && obj.value != "")
                 content = obj.value;
         }
         if (content != null)
